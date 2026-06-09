@@ -1,0 +1,21 @@
+# ===================================================================
+# cPanel ROOT .htaccess
+# Place this file at the root of your cPanel account (one level above public_html)
+# if you install the app there. Or use the redirect approach below.
+# ===================================================================
+
+# If your app lives in public_html/accounting/,
+# redirect public_html root to the public folder:
+# RewriteEngine On
+# RewriteRule ^$ /accounting/public/ [L,R=301]
+
+# Protect sensitive files from direct access
+<FilesMatch "^\.env">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "composer\.(json|lock)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>

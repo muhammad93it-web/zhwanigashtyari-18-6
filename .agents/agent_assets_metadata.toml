@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "V1gm4fvuhbMU0vaPTWE8m"
+uri = "file://jwani-accounting-system.zip"
+type = "unspecified"
+title = "سیستەمی ژمێریاری ژوانی گەشتیاری — Laravel Project ZIP"
