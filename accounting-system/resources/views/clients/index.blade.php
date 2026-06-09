@@ -29,7 +29,8 @@
 
     <!-- Table -->
     <div class="card overflow-hidden">
-        <table class="w-full text-sm">
+        <div class="overflow-x-auto">
+        <table class="w-full text-sm min-w-[640px]">
             <thead>
                 <tr class="bg-teal-900/60 border-b border-teal-700/40">
                     <th class="px-5 py-3.5 text-right text-xs text-teal-400 font-semibold">#</th>
@@ -99,6 +100,7 @@
                 @endforelse
             </tbody>
         </table>
+        </div>
     </div>
 
     <!-- Pagination -->

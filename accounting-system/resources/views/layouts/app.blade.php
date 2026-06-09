@@ -22,25 +22,27 @@
                     },
                     colors: {
                         teal: {
-                            950: '#011c26',
-                            900: '#032d40',
-                            800: '#0a3d52',
-                            700: '#0d526e',
-                            600: '#126688',
-                            500: '#1a8aad',
+                            950: '#07181f',
+                            900: '#0d2530',
+                            800: '#143843',
+                            700: '#1f4f5e',
+                            600: '#2a7184',
+                            500: '#3a96a8',
+                            400: '#5fb6c6',
+                            300: '#92d2dd',
                         },
                         navy: {
-                            950: '#050a1a',
-                            900: '#0b1637',
-                            800: '#132050',
-                            700: '#1c2e6b',
-                            600: '#2540a0',
+                            950: '#0a1320',
+                            900: '#0f1f35',
+                            800: '#163050',
+                            700: '#1f4470',
+                            600: '#2b5d94',
                         },
                         gold: {
-                            400: '#fbbf24',
-                            500: '#f59e0b',
-                            600: '#d97706',
-                            300: '#fcd34d',
+                            300: '#f3d68a',
+                            400: '#eec24f',
+                            500: '#e0a82e',
+                            600: '#c08e20',
                         },
                     },
                     animation: {
@@ -58,39 +60,42 @@
 
     <style>
         * { font-family: 'Noto Kufi Arabic', sans-serif; }
-        body { background: linear-gradient(135deg, #011c26 0%, #032d40 40%, #050a1a 100%); min-height: 100vh; }
+        body { background: linear-gradient(160deg, #07181f 0%, #0d2530 55%, #0a1320 100%); background-attachment: fixed; min-height: 100vh; }
         .sidebar-link { @apply flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-teal-800/60 hover:text-gold-400 transition-all duration-200 text-sm font-medium; }
         .sidebar-link.active { @apply bg-teal-800/80 text-gold-400 shadow-lg; }
-        .card { @apply bg-teal-900/40 backdrop-blur border border-teal-700/30 rounded-2xl; }
-        .btn-primary { @apply bg-gradient-to-r from-teal-600 to-navy-600 hover:from-teal-500 hover:to-navy-500 text-white px-5 py-2.5 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-teal-500/25 text-sm; }
-        .btn-gold { @apply bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-400 hover:to-gold-500 text-navy-950 px-5 py-2.5 rounded-xl font-bold transition-all duration-200 shadow-lg text-sm; }
-        .btn-danger { @apply bg-red-600/80 hover:bg-red-500 text-white px-4 py-2 rounded-xl font-semibold transition-all duration-200 text-sm; }
-        .btn-outline { @apply border border-teal-600/60 hover:border-gold-400 text-teal-300 hover:text-gold-400 px-4 py-2 rounded-xl font-medium transition-all duration-200 text-sm; }
+        .card { @apply bg-teal-900/50 backdrop-blur border border-teal-700/30 rounded-2xl; }
+        .btn-primary { @apply inline-flex items-center justify-center gap-2 bg-gradient-to-l from-teal-600 to-navy-600 hover:from-teal-500 hover:to-navy-500 text-white px-5 py-2.5 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-teal-500/25 text-sm; }
+        .btn-gold { @apply inline-flex items-center justify-center gap-2 bg-gradient-to-l from-gold-500 to-gold-600 hover:from-gold-400 hover:to-gold-500 text-navy-950 px-5 py-2.5 rounded-xl font-bold transition-all duration-200 shadow-lg text-sm; }
+        .btn-danger { @apply inline-flex items-center justify-center gap-2 bg-red-600/80 hover:bg-red-500 text-white px-4 py-2 rounded-xl font-semibold transition-all duration-200 text-sm; }
+        .btn-outline { @apply inline-flex items-center justify-center gap-2 border border-teal-600/60 hover:border-gold-400 text-teal-300 hover:text-gold-400 px-4 py-2 rounded-xl font-medium transition-all duration-200 text-sm; }
         .input-field { @apply w-full bg-teal-950/60 border border-teal-700/50 rounded-xl px-4 py-2.5 text-white placeholder-teal-500 focus:outline-none focus:border-gold-400/70 focus:ring-1 focus:ring-gold-400/30 transition-all duration-200 text-sm; }
         .label { @apply block text-sm font-semibold text-teal-300 mb-1.5; }
-        .badge-sale { @apply inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30; }
-        .badge-purchase { @apply inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-red-500/20 text-red-400 border border-red-500/30; }
-        .badge-debit { @apply inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30; }
-        .badge-credit { @apply inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30; }
+        .badge-sale { @apply inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30; }
+        .badge-purchase { @apply inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30; }
+        .badge-debit { @apply inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-gold-500/20 text-gold-300 border border-gold-500/30; }
+        .badge-credit { @apply inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30; }
         .table-row { @apply border-b border-teal-800/40 hover:bg-teal-800/20 transition-colors; }
         .stat-card { @apply card p-5 flex flex-col gap-2; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #011c26; }
-        ::-webkit-scrollbar-thumb { background: #0d526e; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #1a8aad; }
-        .gold-text { background: linear-gradient(90deg, #fbbf24, #f59e0b, #fcd34d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        ::-webkit-scrollbar-track { background: #07181f; }
+        ::-webkit-scrollbar-thumb { background: #1f4f5e; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3a96a8; }
+        .gold-text { background: linear-gradient(90deg, #f3d68a, #e0a82e, #eec24f); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     </style>
 
     @stack('head')
 </head>
 <body class="dark h-full">
 
+<!-- Mobile overlay -->
+<div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 hidden lg:hidden"></div>
+
 <div class="flex h-screen overflow-hidden">
 
     <!-- ========== SIDEBAR ========== -->
-    <aside class="w-64 flex-shrink-0 flex flex-col bg-teal-950/80 backdrop-blur border-l border-teal-700/30 overflow-y-auto">
+    <aside id="sidebar" class="fixed lg:static inset-y-0 right-0 z-40 w-72 sm:w-64 flex-shrink-0 flex flex-col bg-teal-950/95 lg:bg-teal-950/80 backdrop-blur border-l border-teal-700/30 overflow-y-auto transform translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
         <!-- Logo -->
-        <div class="p-5 border-b border-teal-700/30">
+        <div class="p-5 border-b border-teal-700/30 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center shadow-lg shadow-gold-500/30">
                     <svg class="w-5 h-5 text-navy-950" fill="currentColor" viewBox="0 0 20 20">
@@ -103,6 +108,10 @@
                     <div class="text-sm font-bold text-white leading-tight">ژوانی گەشتیاری</div>
                 </div>
             </div>
+            <!-- Close button (mobile only) -->
+            <button onclick="closeSidebar()" class="lg:hidden text-teal-400 hover:text-gold-400 p-1" aria-label="داخستن">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
         </div>
 
         <!-- Navigation -->
@@ -173,20 +182,26 @@
     <div class="flex-1 flex flex-col overflow-hidden">
 
         <!-- Top bar -->
-        <header class="flex-shrink-0 h-14 bg-teal-950/60 backdrop-blur border-b border-teal-700/30 flex items-center justify-between px-6">
-            <div>
-                <h1 class="text-sm font-bold text-white">@yield('page-title', 'داشبۆرد')</h1>
-                <div class="text-xs text-teal-500">@yield('page-subtitle', '')</div>
+        <header class="flex-shrink-0 h-14 bg-teal-950/60 backdrop-blur border-b border-teal-700/30 flex items-center justify-between px-4 sm:px-6">
+            <div class="flex items-center gap-3 min-w-0">
+                <!-- Hamburger (mobile only) -->
+                <button onclick="openSidebar()" class="lg:hidden text-teal-300 hover:text-gold-400 p-1 -mr-1" aria-label="پێڕست">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </button>
+                <div class="min-w-0">
+                    <h1 class="text-sm font-bold text-white truncate">@yield('page-title', 'داشبۆرد')</h1>
+                    <div class="text-xs text-teal-500 truncate">@yield('page-subtitle', '')</div>
+                </div>
             </div>
             <div class="flex items-center gap-3">
-                <div class="text-xs text-teal-400 font-medium">
+                <div class="hidden sm:block text-xs text-teal-400 font-medium">
                     {{ now()->locale('ku')->isoFormat('dddd، D MMMM YYYY') }}
                 </div>
             </div>
         </header>
 
         <!-- Flash messages -->
-        <div class="px-6 pt-4 space-y-2">
+        <div class="px-4 sm:px-6 pt-4 space-y-2">
             @if(session('success'))
                 <div class="animate-slide-in flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-sm font-medium">
                     <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
@@ -202,12 +217,37 @@
         </div>
 
         <!-- Page content -->
-        <main class="flex-1 overflow-y-auto px-6 py-4">
+        <main class="flex-1 overflow-y-auto px-4 sm:px-6 py-4">
             @yield('content')
         </main>
     </div>
 </div>
 
+<script>
+    function openSidebar() {
+        document.getElementById('sidebar').classList.remove('translate-x-full');
+        document.getElementById('sidebarOverlay').classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+    }
+    function closeSidebar() {
+        document.getElementById('sidebar').classList.add('translate-x-full');
+        document.getElementById('sidebarOverlay').classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    }
+    // Close drawer when a nav link is tapped (mobile)
+    document.querySelectorAll('#sidebar nav a').forEach(function (link) {
+        link.addEventListener('click', function () {
+            if (window.innerWidth < 1024) closeSidebar();
+        });
+    });
+    // Reset state when crossing the desktop breakpoint
+    window.addEventListener('resize', function () {
+        if (window.innerWidth >= 1024) {
+            document.getElementById('sidebarOverlay').classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+    });
+</script>
 @stack('scripts')
 </body>
 </html>

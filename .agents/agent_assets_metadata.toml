@@ -5,7 +5,7 @@ generated = []
 id = "V1gm4fvuhbMU0vaPTWE8m"
 uri = "file://jwani-accounting-system.zip"
 type = "unspecified"
-title = "سیستەمی ژمێریاری ژوانی گەشتیاری — لەگەڵ vendor (ئامادە بۆ cPanel)"
+title = "Updated app (responsive UI, dropdown login, password reset)"
 
 [[outputs]]
 id = "wE4WBCgm50R-Bzpn8B9KY"

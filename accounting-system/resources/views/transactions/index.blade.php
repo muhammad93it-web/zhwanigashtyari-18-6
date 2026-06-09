@@ -41,7 +41,7 @@
 
     <!-- Totals Row -->
     @if($totals)
-    <div class="grid grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="card p-3 flex items-center justify-between">
             <span class="text-xs text-teal-500">کۆی مامەڵەکان</span>
             <span class="text-lg font-bold text-white">{{ number_format($totals->total_count) }}</span>

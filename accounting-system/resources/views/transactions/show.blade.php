@@ -29,7 +29,7 @@
         </div>
 
         <!-- Amount Display -->
-        <div class="grid grid-cols-3 gap-4 p-5 rounded-2xl bg-teal-950/50 border border-teal-700/30">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-5 rounded-2xl bg-teal-950/50 border border-teal-700/30">
             <div class="text-center">
                 <div class="text-xs text-teal-500 mb-1">بڕی ئەسڵی</div>
                 <div class="text-2xl font-bold text-white font-mono">
