@@ -1,0 +1,1 @@
+- [PHP/Laravel in this env](php-laravel-env.md) — PHP+Composer installable via php-8.2 module; L11 skeleton needs L11 framework + a hand-made base Controller; ZIP via scripts/create-zip.mjs
