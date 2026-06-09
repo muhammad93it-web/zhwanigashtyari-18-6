@@ -6,45 +6,15 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'سیستەمی ژمێریاری') — ژوانی گەشتیاری</title>
 
-    <!-- Google Fonts: Noto Kufi Arabic -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: {
-                        kufi: ['"Noto Kufi Arabic"', 'sans-serif'],
-                    },
-                    colors: {
-                        teal: {
-                            950: '#07181f',
-                            900: '#0d2530',
-                            800: '#143843',
-                            700: '#1f4f5e',
-                            600: '#2a7184',
-                            500: '#3a96a8',
-                            400: '#5fb6c6',
-                            300: '#92d2dd',
-                        },
-                        navy: {
-                            950: '#0a1320',
-                            900: '#0f1f35',
-                            800: '#163050',
-                            700: '#1f4470',
-                            600: '#2b5d94',
-                        },
-                        gold: {
-                            300: '#f3d68a',
-                            400: '#eec24f',
-                            500: '#e0a82e',
-                            600: '#c08e20',
-                        },
-                    },
+                    fontFamily: { kufi: ['"Noto Kufi Arabic"', 'sans-serif'] },
                     animation: {
                         'fade-in': 'fadeIn 0.3s ease-out',
                         'slide-in': 'slideIn 0.3s ease-out',
@@ -60,117 +30,164 @@
 
     <style>
         * { font-family: 'Noto Kufi Arabic', sans-serif; }
-        body { background: linear-gradient(160deg, #07181f 0%, #0d2530 55%, #0a1320 100%); background-attachment: fixed; min-height: 100vh; }
-        .sidebar-link { @apply flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-teal-800/60 hover:text-gold-400 transition-all duration-200 text-sm font-medium; }
-        .sidebar-link.active { @apply bg-teal-800/80 text-gold-400 shadow-lg; }
-        .card { @apply bg-teal-900/50 backdrop-blur border border-teal-700/30 rounded-2xl; }
-        .btn-primary { @apply inline-flex items-center justify-center gap-2 bg-gradient-to-l from-teal-600 to-navy-600 hover:from-teal-500 hover:to-navy-500 text-white px-5 py-2.5 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-teal-500/25 text-sm; }
-        .btn-gold { @apply inline-flex items-center justify-center gap-2 bg-gradient-to-l from-gold-500 to-gold-600 hover:from-gold-400 hover:to-gold-500 text-navy-950 px-5 py-2.5 rounded-xl font-bold transition-all duration-200 shadow-lg text-sm; }
-        .btn-danger { @apply inline-flex items-center justify-center gap-2 bg-red-600/80 hover:bg-red-500 text-white px-4 py-2 rounded-xl font-semibold transition-all duration-200 text-sm; }
-        .btn-outline { @apply inline-flex items-center justify-center gap-2 border border-teal-600/60 hover:border-gold-400 text-teal-300 hover:text-gold-400 px-4 py-2 rounded-xl font-medium transition-all duration-200 text-sm; }
-        .input-field { @apply w-full bg-teal-950/60 border border-teal-700/50 rounded-xl px-4 py-2.5 text-white placeholder-teal-500 focus:outline-none focus:border-gold-400/70 focus:ring-1 focus:ring-gold-400/30 transition-all duration-200 text-sm; }
-        .label { @apply block text-sm font-semibold text-teal-300 mb-1.5; }
-        .badge-sale { @apply inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30; }
-        .badge-purchase { @apply inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30; }
-        .badge-debit { @apply inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-gold-500/20 text-gold-300 border border-gold-500/30; }
-        .badge-credit { @apply inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30; }
-        .table-row { @apply border-b border-teal-800/40 hover:bg-teal-800/20 transition-colors; }
-        .stat-card { @apply card p-5 flex flex-col gap-2; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #07181f; }
-        ::-webkit-scrollbar-thumb { background: #1f4f5e; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #3a96a8; }
-        .gold-text { background: linear-gradient(90deg, #f3d68a, #e0a82e, #eec24f); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        body { background-color: #eef2f6; min-height: 100vh; }
+        ::-webkit-scrollbar { width: 7px; height: 7px; }
+        ::-webkit-scrollbar-track { background: #e2e8f0; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+    </style>
+
+    <style type="text/tailwindcss">
+        @layer components {
+            .sidebar-link { @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-green-700 transition-all duration-150 text-sm font-medium; }
+            .sidebar-link.active { @apply bg-green-50 text-green-700 font-semibold; }
+            .sidebar-group { @apply pt-4 pb-1 px-4 text-[11px] text-slate-400 font-bold uppercase tracking-wider; }
+            .card { @apply bg-white border border-slate-200 rounded-xl shadow-sm; }
+            .btn { @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-semibold transition-all duration-150 text-sm shadow-sm; }
+            .btn-primary { @apply btn bg-green-600 hover:bg-green-700 text-white; }
+            .btn-info { @apply btn bg-cyan-600 hover:bg-cyan-700 text-white; }
+            .btn-danger { @apply btn bg-red-500 hover:bg-red-600 text-white; }
+            .btn-warning { @apply btn bg-amber-500 hover:bg-amber-600 text-white; }
+            .btn-slate { @apply btn bg-slate-600 hover:bg-slate-700 text-white; }
+            .btn-outline { @apply btn bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 shadow-none; }
+            .input-field { @apply w-full bg-white border border-slate-300 rounded-lg px-3.5 py-2.5 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-150 text-sm; }
+            .label { @apply block text-sm font-semibold text-slate-700 mb-1.5; }
+            .table-row { @apply border-b border-slate-100 hover:bg-slate-50 transition-colors; }
+            .stat-card { @apply card p-5 flex flex-col gap-1.5; }
+            .badge { @apply inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold; }
+            .badge-green { @apply badge bg-green-100 text-green-700; }
+            .badge-red { @apply badge bg-red-100 text-red-700; }
+            .badge-amber { @apply badge bg-amber-100 text-amber-700; }
+            .badge-cyan { @apply badge bg-cyan-100 text-cyan-700; }
+            .badge-slate { @apply badge bg-slate-100 text-slate-600; }
+            .badge-sale { @apply badge bg-green-100 text-green-700; }
+            .badge-purchase { @apply badge bg-red-100 text-red-700; }
+            .badge-debit { @apply badge bg-amber-100 text-amber-700; }
+            .badge-credit { @apply badge bg-cyan-100 text-cyan-700; }
+            .badge-gray { @apply badge bg-slate-100 text-slate-600; }
+        }
     </style>
 
     @stack('head')
 </head>
-<body class="dark h-full">
+<body class="h-full text-slate-800">
 
-<!-- Mobile overlay -->
-<div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 hidden lg:hidden"></div>
+<div id="sidebarOverlay" onclick="closeSidebar()" class="fixed inset-0 bg-slate-900/40 z-30 hidden lg:hidden"></div>
 
 <div class="flex h-screen overflow-hidden">
 
     <!-- ========== SIDEBAR ========== -->
-    <aside id="sidebar" class="fixed lg:static inset-y-0 right-0 z-40 w-72 sm:w-64 flex-shrink-0 flex flex-col bg-teal-950/95 lg:bg-teal-950/80 backdrop-blur border-l border-teal-700/30 overflow-y-auto transform translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
-        <!-- Logo -->
-        <div class="p-5 border-b border-teal-700/30 flex items-center justify-between">
+    <aside id="sidebar" class="fixed lg:static inset-y-0 right-0 z-40 w-72 sm:w-64 flex-shrink-0 flex flex-col bg-white border-l border-slate-200 overflow-y-auto transform translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+        <div class="p-5 border-b border-slate-200 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center shadow-lg shadow-gold-500/30">
-                    <svg class="w-5 h-5 text-navy-950" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
-                    </svg>
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-md shadow-green-500/30">
+                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/></svg>
                 </div>
                 <div>
-                    <div class="text-xs text-teal-400 leading-tight">سیستەمی ژمێریاری</div>
-                    <div class="text-sm font-bold text-white leading-tight">ژوانی گەشتیاری</div>
+                    <div class="text-[11px] text-slate-400 leading-tight">سیستەمی ژمێریاری</div>
+                    <div class="text-sm font-bold text-slate-800 leading-tight">ژوانی گەشتیاری</div>
                 </div>
             </div>
-            <!-- Close button (mobile only) -->
-            <button onclick="closeSidebar()" class="lg:hidden text-teal-400 hover:text-gold-400 p-1" aria-label="داخستن">
+            <button onclick="closeSidebar()" class="lg:hidden text-slate-400 hover:text-slate-700 p-1" aria-label="داخستن">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </div>
 
-        <!-- Navigation -->
-        <nav class="flex-1 p-3 space-y-1">
+        <nav class="flex-1 p-3 space-y-0.5">
             <a href="{{ route('dashboard') }}" class="sidebar-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                 <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
                 داشبۆرد
             </a>
 
-            <div class="pt-3 pb-1 px-4 text-xs text-teal-600 font-semibold uppercase tracking-wider">کڕیاران</div>
+            <div class="sidebar-group">دارایی</div>
+            <a href="{{ route('incomes.index') }}" class="sidebar-link {{ request()->routeIs('incomes.*') ? 'active' : '' }}">
+                <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v3.586L7.707 8.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 9.586V6z" clip-rule="evenodd"/></svg>
+                وەرگرتنی پارە
+            </a>
+            <a href="{{ route('expenses.index') }}" class="sidebar-link {{ request()->routeIs('expenses.*') ? 'active' : '' }}">
+                <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zM9 14V10.414L7.707 11.707a1 1 0 01-1.414-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 10.414V14a1 1 0 11-2 0z" clip-rule="evenodd"/></svg>
+                خەرجکردنی پارە
+            </a>
+            <a href="{{ route('debts.index') }}" class="sidebar-link {{ request()->routeIs('debts.*') ? 'active' : '' }}">
+                <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/><path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/></svg>
+                قەرزەکان
+            </a>
 
+            <div class="sidebar-group">کڕین و فرۆشتن و کۆگا</div>
+            <a href="{{ route('materials.buy') }}" class="sidebar-link {{ request()->routeIs('materials.buy') || request()->routeIs('movements.store') && request('type')=='purchase' ? 'active' : '' }}">
+                <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/></svg>
+                کڕینی مەواد
+            </a>
+            <a href="{{ route('materials.sell') }}" class="sidebar-link {{ request()->routeIs('materials.sell') ? 'active' : '' }}">
+                <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"/></svg>
+                فرۆشتنی مەواد
+            </a>
+            <a href="{{ route('materials.index') }}" class="sidebar-link {{ request()->routeIs('materials.index') || request()->routeIs('materials.show') || request()->routeIs('materials.create') || request()->routeIs('materials.edit') ? 'active' : '' }}">
+                <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+                کۆگا (مەوادەکان)
+            </a>
+
+            <div class="sidebar-group">وەستا و بەڵێندەرایەتی</div>
+            <a href="{{ route('contractors.index') }}" class="sidebar-link {{ request()->routeIs('contractors.*') ? 'active' : '' }}">
+                <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+                وەستاکان
+            </a>
+            <a href="{{ route('contractor-payments.index') }}" class="sidebar-link {{ request()->routeIs('contractor-payments.*') ? 'active' : '' }}">
+                <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4z"/><path d="M14 6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2h8zm-4 7a3 3 0 100-6 3 3 0 000 6z"/></svg>
+                پێدانی پارەی وەستا
+            </a>
+
+            <div class="sidebar-group">ڕاپۆرتەکان</div>
+            <a href="{{ route('reports.daily') }}" class="sidebar-link {{ request()->routeIs('reports.daily') ? 'active' : '' }}">
+                <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+                ڕاپۆرتی ڕۆژانە
+            </a>
+            <a href="{{ route('reports.summary') }}" class="sidebar-link {{ request()->routeIs('reports.summary') ? 'active' : '' }}">
+                <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
+                کۆی هەموو بەشەکان
+            </a>
+            <a href="{{ route('reports.project-cost') }}" class="sidebar-link {{ request()->routeIs('reports.project-cost') ? 'active' : '' }}">
+                <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 011 1v.092a4.535 4.535 0 011.676.662C14.398 9.235 15 10.009 15 11c0 .99-.602 1.765-1.324 2.246A4.535 4.535 0 0111 13.908V14a1 1 0 11-2 0v-.092a4.535 4.535 0 01-1.676-.662C6.602 12.765 6 11.991 6 11h2c0 .342.234.74.851 1.011.6.265 1.293.265 1.893 0C11.36 11.738 12 11.342 12 11s-.234-.74-.851-1.011A4.535 4.535 0 0110 9.908V6a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                تێچووی گشتیی پڕۆژە
+            </a>
+
+            <div class="sidebar-group">کارگێڕی</div>
+            <a href="{{ route('documents.index') }}" class="sidebar-link {{ request()->routeIs('documents.*') ? 'active' : '' }}">
+                <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
+                نووسراوەکان
+            </a>
+            <a href="{{ route('print-center.index') }}" class="sidebar-link {{ request()->routeIs('print-center.*') ? 'active' : '' }}">
+                <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a1 1 0 001 1h8a1 1 0 001-1v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a1 1 0 00-1-1H6a1 1 0 00-1 1zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd"/></svg>
+                چاپکردنی بەشەکان
+            </a>
+
+            <div class="sidebar-group">ڕێکخستن</div>
             <a href="{{ route('clients.index') }}" class="sidebar-link {{ request()->routeIs('clients.*') ? 'active' : '' }}">
                 <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/></svg>
-                کەسەکان (کڕیاران)
+                کڕیاران و کەسەکان
             </a>
-
-            <a href="{{ route('clients.create') }}" class="sidebar-link {{ request()->routeIs('clients.create') ? 'active' : '' }}">
-                <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
-                زیادکردنی کڕیار
-            </a>
-
-            <div class="pt-3 pb-1 px-4 text-xs text-teal-600 font-semibold uppercase tracking-wider">مامەڵەکان</div>
-
-            <a href="{{ route('transactions.index') }}" class="sidebar-link {{ request()->routeIs('transactions.index') ? 'active' : '' }}">
+            <a href="{{ route('transactions.index') }}" class="sidebar-link {{ request()->routeIs('transactions.*') ? 'active' : '' }}">
                 <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
-                لیستی مامەڵەکان
+                مامەڵە گشتییەکان
             </a>
-
-            <a href="{{ route('transactions.create') }}" class="sidebar-link {{ request()->routeIs('transactions.create') ? 'active' : '' }}">
-                <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
-                تۆمارکردنی مامەڵە
-            </a>
-
-            <div class="pt-3 pb-1 px-4 text-xs text-teal-600 font-semibold uppercase tracking-wider">دارایی</div>
-
             <a href="{{ route('exchange-rates.index') }}" class="sidebar-link {{ request()->routeIs('exchange-rates.*') ? 'active' : '' }}">
                 <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M8 5a1 1 0 100 2h5.586l-1.293 1.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L13.586 5H8zM12 15a1 1 0 100-2H6.414l1.293-1.293a1 1 0 10-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L6.414 15H12z"/></svg>
                 ڕێژەی گۆڕینی دراو
             </a>
-
-            <a href="{{ route('reports.index') }}" class="sidebar-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
-                <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm2 10a1 1 0 10-2 0v3a1 1 0 102 0v-3zm2-3a1 1 0 011 1v5a1 1 0 11-2 0v-5a1 1 0 011-1zm4-1a1 1 0 10-2 0v7a1 1 0 102 0V8z" clip-rule="evenodd"/></svg>
-                ڕاپۆرتەکان
-            </a>
         </nav>
 
-        <!-- User -->
-        <div class="p-3 border-t border-teal-700/30">
-            <div class="flex items-center gap-3 px-3 py-2 rounded-xl bg-teal-800/30">
-                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-teal-500 to-navy-600 flex items-center justify-center text-white text-xs font-bold">
+        <div class="p-3 border-t border-slate-200">
+            <div class="flex items-center gap-3 px-3 py-2 rounded-lg bg-slate-50">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white text-xs font-bold">
                     {{ mb_substr(Auth::user()->name, 0, 1) }}
                 </div>
                 <div class="flex-1 min-w-0">
-                    <div class="text-xs font-semibold text-white truncate">{{ Auth::user()->name }}</div>
-                    <div class="text-xs text-teal-400">بەڕێوەبەر</div>
+                    <div class="text-xs font-semibold text-slate-800 truncate">{{ Auth::user()->name }}</div>
+                    <div class="text-[11px] text-slate-400">بەڕێوەبەر</div>
                 </div>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="text-teal-500 hover:text-red-400 transition-colors" title="چوونەدەرەوە">
+                    <button type="submit" class="text-slate-400 hover:text-red-500 transition-colors" title="چوونەدەرەوە">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/></svg>
                     </button>
                 </form>
@@ -180,43 +197,38 @@
 
     <!-- ========== MAIN CONTENT ========== -->
     <div class="flex-1 flex flex-col overflow-hidden">
-
-        <!-- Top bar -->
-        <header class="flex-shrink-0 h-14 bg-teal-950/60 backdrop-blur border-b border-teal-700/30 flex items-center justify-between px-4 sm:px-6">
+        <header class="flex-shrink-0 h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6">
             <div class="flex items-center gap-3 min-w-0">
-                <!-- Hamburger (mobile only) -->
-                <button onclick="openSidebar()" class="lg:hidden text-teal-300 hover:text-gold-400 p-1 -mr-1" aria-label="پێڕست">
+                <button onclick="openSidebar()" class="lg:hidden text-slate-500 hover:text-green-600 p-1 -mr-1" aria-label="پێڕست">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                 </button>
                 <div class="min-w-0">
-                    <h1 class="text-sm font-bold text-white truncate">@yield('page-title', 'داشبۆرد')</h1>
-                    <div class="text-xs text-teal-500 truncate">@yield('page-subtitle', '')</div>
+                    <h1 class="text-sm font-bold text-slate-800 truncate">@yield('page-title', 'داشبۆرد')</h1>
+                    <div class="text-xs text-slate-400 truncate">@yield('page-subtitle', '')</div>
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                <div class="hidden sm:block text-xs text-teal-400 font-medium">
+                <div class="hidden sm:block text-xs text-slate-500 font-medium">
                     {{ now()->locale('ku')->isoFormat('dddd، D MMMM YYYY') }}
                 </div>
             </div>
         </header>
 
-        <!-- Flash messages -->
         <div class="px-4 sm:px-6 pt-4 space-y-2">
             @if(session('success'))
-                <div class="animate-slide-in flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-sm font-medium">
-                    <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                <div class="animate-slide-in flex items-center gap-3 px-4 py-3 rounded-lg bg-green-50 border border-green-200 text-green-700 text-sm font-medium">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
                     {{ session('success') }}
                 </div>
             @endif
             @if(session('error'))
-                <div class="animate-slide-in flex items-center gap-3 px-4 py-3 rounded-xl bg-red-500/15 border border-red-500/30 text-red-400 text-sm font-medium">
-                    <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                <div class="animate-slide-in flex items-center gap-3 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm font-medium">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
                     {{ session('error') }}
                 </div>
             @endif
         </div>
 
-        <!-- Page content -->
         <main class="flex-1 overflow-y-auto px-4 sm:px-6 py-4">
             @yield('content')
         </main>
@@ -234,13 +246,11 @@
         document.getElementById('sidebarOverlay').classList.add('hidden');
         document.body.classList.remove('overflow-hidden');
     }
-    // Close drawer when a nav link is tapped (mobile)
     document.querySelectorAll('#sidebar nav a').forEach(function (link) {
         link.addEventListener('click', function () {
             if (window.innerWidth < 1024) closeSidebar();
         });
     });
-    // Reset state when crossing the desktop breakpoint
     window.addEventListener('resize', function () {
         if (window.innerWidth >= 1024) {
             document.getElementById('sidebarOverlay').classList.add('hidden');

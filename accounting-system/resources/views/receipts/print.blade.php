@@ -23,7 +23,7 @@
         }
 
         .header { text-align: center; border-bottom: 1px dashed #ccc; padding-bottom: 6mm; margin-bottom: 5mm; }
-        .company-name { font-size: 16px; font-weight: 800; color: #032d40; }
+        .company-name { font-size: 16px; font-weight: 800; color: #16a34a; }
         .company-sub { font-size: 10px; color: #666; margin-top: 2px; }
         .receipt-title { font-size: 13px; font-weight: 700; margin-top: 4mm; }
 
@@ -45,7 +45,7 @@
         .info-value { font-weight: 600; }
 
         .amount-section { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 4mm; margin: 4mm 0; text-align: center; }
-        .amount-main { font-size: 22px; font-weight: 800; color: #032d40; }
+        .amount-main { font-size: 22px; font-weight: 800; color: #16a34a; }
         .amount-sub { font-size: 10px; color: #888; margin-top: 2px; }
         .amount-detail { display: flex; justify-content: space-between; font-size: 10px; margin-top: 3mm; padding-top: 3mm; border-top: 1px dashed #ccc; }
 
@@ -59,7 +59,7 @@
             display: block;
             margin: 10px auto;
             padding: 8px 24px;
-            background: #032d40;
+            background: #16a34a;
             color: white;
             border: none;
             border-radius: 6px;

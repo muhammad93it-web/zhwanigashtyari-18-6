@@ -2,8 +2,17 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ContractorController;
+use App\Http\Controllers\ContractorPaymentController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DebtController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ExchangeRateController;
+use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\IncomeController;
+use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\MaterialMovementController;
+use App\Http\Controllers\PrintCenterController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
@@ -24,21 +33,45 @@ Route::middleware('auth')->group(function () {
     // Dashboard
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Clients (کەسەکان)
+    // ===== دارایی / Finance =====
+    Route::resource('incomes', IncomeController::class);
+    Route::resource('expenses', ExpenseController::class);
+    Route::resource('debts', DebtController::class);
+    Route::post('/debts/{debt}/mark-paid', [DebtController::class, 'markPaid'])->name('debts.mark-paid');
+
+    // ===== کڕین و فرۆشتن و کۆگا / Trading & Inventory =====
+    Route::resource('materials', MaterialController::class);
+    Route::get('/materials-buy', [MaterialMovementController::class, 'create'])->defaults('type', 'purchase')->name('materials.buy');
+    Route::get('/materials-sell', [MaterialMovementController::class, 'create'])->defaults('type', 'sale')->name('materials.sell');
+    Route::post('/material-movements', [MaterialMovementController::class, 'store'])->name('movements.store');
+    Route::delete('/material-movements/{movement}', [MaterialMovementController::class, 'destroy'])->name('movements.destroy');
+
+    // ===== وەستا / Contractors =====
+    Route::resource('contractors', ContractorController::class);
+    Route::resource('contractor-payments', ContractorPaymentController::class)->only(['index', 'create', 'store', 'destroy']);
+
+    // ===== ڕاپۆرتەکان / Reports =====
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/daily', [ReportController::class, 'daily'])->name('reports.daily');
+    Route::get('/reports/summary', [ReportController::class, 'summary'])->name('reports.summary');
+    Route::get('/reports/project-cost', [ReportController::class, 'projectCost'])->name('reports.project-cost');
+    Route::get('/reports/client/{client}', [ReportController::class, 'clientReport'])->name('reports.client');
+    Route::get('/reports/export/excel', [ReportController::class, 'exportExcel'])->name('reports.export.excel');
+    Route::get('/reports/client/{client}/export', [ReportController::class, 'exportClientExcel'])->name('reports.client.export');
+
+    // ===== کارگێڕی / Administration =====
+    Route::resource('documents', DocumentController::class);
+    Route::get('/documents/{document}/print', [DocumentController::class, 'print'])->name('documents.print');
+    Route::get('/print-center', [PrintCenterController::class, 'index'])->name('print-center.index');
+    Route::get('/print-center/print', [PrintCenterController::class, 'print'])->name('print-center.print');
+
+    // ===== ڕێکخستن / Settings =====
     Route::resource('clients', ClientController::class);
 
-    // Transactions (مامەڵەکان)
     Route::resource('transactions', TransactionController::class)->except(['edit', 'update']);
     Route::get('/transactions/{transaction}/receipt', [TransactionController::class, 'receipt'])->name('transactions.receipt');
     Route::get('/transactions/{transaction}/print', [TransactionController::class, 'printReceipt'])->name('transactions.print');
 
-    // Exchange Rates (ڕێژەی گۆڕینی دراو)
     Route::resource('exchange-rates', ExchangeRateController::class)->only(['index', 'store', 'destroy']);
     Route::get('/exchange-rates/current', [ExchangeRateController::class, 'current'])->name('exchange-rates.current');
-
-    // Reports (ڕاپۆرتەکان)
-    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
-    Route::get('/reports/client/{client}', [ReportController::class, 'clientReport'])->name('reports.client');
-    Route::get('/reports/export/excel', [ReportController::class, 'exportExcel'])->name('reports.export.excel');
-    Route::get('/reports/client/{client}/export', [ReportController::class, 'exportClientExcel'])->name('reports.client.export');
 });

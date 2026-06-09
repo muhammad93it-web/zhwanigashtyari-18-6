@@ -5,7 +5,7 @@
 <div class="max-w-2xl animate-fade-in">
     <div class="card p-6">
         @if($errors->any())
-        <div class="mb-5 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm space-y-1">
+        <div class="mb-5 p-4 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm space-y-1">
             @foreach($errors->all() as $error)<div>• {{ $error }}</div>@endforeach
         </div>
         @endif
@@ -15,7 +15,7 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                    <label class="label">ناوی کڕیار <span class="text-red-400">*</span></label>
+                    <label class="label">ناوی کڕیار <span class="text-red-500">*</span></label>
                     <input type="text" name="name" value="{{ old('name') }}" required class="input-field" placeholder="ناوی تەواو...">
                 </div>
                 <div>
@@ -44,7 +44,7 @@
             </div>
 
             <div class="flex gap-3 pt-2">
-                <button type="submit" class="btn-gold">زیادکردنی کڕیار</button>
+                <button type="submit" class="btn-primary">زیادکردنی کڕیار</button>
                 <a href="{{ route('clients.index') }}" class="btn-outline">پاشگەزبوونەوە</a>
             </div>
         </form>

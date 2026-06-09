@@ -8,15 +8,15 @@
     <div class="card p-6">
 
         @if($errors->any())
-        <div class="mb-5 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm space-y-1">
+        <div class="mb-5 p-4 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm space-y-1">
             @foreach($errors->all() as $error)<div>• {{ $error }}</div>@endforeach
         </div>
         @endif
 
         <!-- Current Rate Notice -->
-        <div class="mb-5 flex items-center gap-3 px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/30">
-            <svg class="w-4 h-4 text-amber-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-            <div class="text-xs text-amber-300">
+        <div class="mb-5 flex items-center gap-3 px-4 py-3 rounded-lg bg-amber-50 border border-amber-200">
+            <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+            <div class="text-xs text-amber-700">
                 <span class="font-semibold">ڕێژەی گۆڕینی ئێستا: {{ number_format($currentRate, 0) }} دینار / دۆلار</span>
                 — ئەم ڕێژەیە لەناو مامەڵەکە دابەزێنراودەبێت و دواتر گۆڕانی تێدا ناكرێت.
             </div>
@@ -29,7 +29,7 @@
 
                 <!-- Client -->
                 <div class="sm:col-span-2">
-                    <label class="label">کڕیار <span class="text-red-400">*</span></label>
+                    <label class="label">کڕیار <span class="text-red-500">*</span></label>
                     <select name="client_id" required class="input-field">
                         <option value="">— کڕیار هەڵبژێرە —</option>
                         @foreach($clients as $client)
@@ -42,7 +42,7 @@
 
                 <!-- Type -->
                 <div>
-                    <label class="label">جۆری مامەڵە <span class="text-red-400">*</span></label>
+                    <label class="label">جۆری مامەڵە <span class="text-red-500">*</span></label>
                     <select name="type" required class="input-field" id="typeSelect">
                         <option value="">— جۆر هەڵبژێرە —</option>
                         @foreach($types as $key => $label)
@@ -53,7 +53,7 @@
 
                 <!-- Currency -->
                 <div>
-                    <label class="label">دراو <span class="text-red-400">*</span></label>
+                    <label class="label">دراو <span class="text-red-500">*</span></label>
                     <select name="currency" required class="input-field" id="currencySelect">
                         @foreach($currencies as $c)
                         <option value="{{ $c }}" {{ old('currency', 'USD') == $c ? 'selected' : '' }}>{{ $c }}</option>
@@ -63,34 +63,34 @@
 
                 <!-- Amount -->
                 <div class="sm:col-span-2">
-                    <label class="label">بڕی پارە <span class="text-red-400">*</span></label>
+                    <label class="label">بڕی پارە <span class="text-red-500">*</span></label>
                     <div class="relative">
                         <input type="number" name="amount" id="amountInput" value="{{ old('amount') }}"
                             required min="0.01" step="0.01"
                             class="input-field pl-20 font-mono text-lg"
                             placeholder="0.00">
                         <div class="absolute left-3 top-1/2 -translate-y-1/2">
-                            <span id="currencySymbol" class="text-gold-400 font-bold text-sm">$</span>
+                            <span id="currencySymbol" class="text-green-600 font-bold text-sm">$</span>
                         </div>
                     </div>
                     <!-- Conversion preview -->
-                    <div id="conversionPreview" class="mt-2 text-xs text-teal-400 hidden">
-                        ≈ <span id="convertedAmount" class="font-mono font-semibold text-gold-400"></span>
+                    <div id="conversionPreview" class="mt-2 text-xs text-slate-500 hidden">
+                        ≈ <span id="convertedAmount" class="font-mono font-semibold text-green-600"></span>
                         <span id="convertedCurrency"></span>
-                        <span class="text-teal-600">(بەپێی ڕێژەی {{ number_format($currentRate, 0) }})</span>
+                        <span class="text-slate-400">(بەپێی ڕێژەی {{ number_format($currentRate, 0) }})</span>
                     </div>
                 </div>
 
                 <!-- Transaction Date -->
                 <div>
-                    <label class="label">بەرواری مامەڵە <span class="text-red-400">*</span></label>
+                    <label class="label">بەرواری مامەڵە <span class="text-red-500">*</span></label>
                     <input type="date" name="transaction_date" value="{{ old('transaction_date', date('Y-m-d')) }}"
                         required class="input-field">
                 </div>
 
                 <!-- Description -->
                 <div class="sm:col-span-2">
-                    <label class="label">وەسف / وردبوونەوە <span class="text-red-400">*</span></label>
+                    <label class="label">وەسف / وردبوونەوە <span class="text-red-500">*</span></label>
                     <input type="text" name="description" value="{{ old('description') }}" required
                         class="input-field" placeholder="وەسفی مامەڵەکە بنووسە...">
                 </div>
@@ -106,7 +106,7 @@
             <div id="typeBadge" class="hidden p-3 rounded-xl border text-sm font-medium text-center"></div>
 
             <div class="flex gap-3 pt-2">
-                <button type="submit" class="btn-gold">تۆمارکردنی مامەڵە</button>
+                <button type="submit" class="btn-primary">تۆمارکردنی مامەڵە</button>
                 <a href="{{ route('transactions.index') }}" class="btn-outline">پاشگەزبوونەوە</a>
             </div>
         </form>
@@ -127,10 +127,10 @@ const typeSelect = document.getElementById('typeSelect');
 const typeBadge = document.getElementById('typeBadge');
 
 const typeColors = {
-    sale:     { bg: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400', text: '✅ فرۆشتن — داواکاری پارە لەسەر کڕیار' },
-    purchase: { bg: 'bg-red-500/10 border-red-500/30 text-red-400', text: '🛒 کڕین — دابینکردنی کاڵا یان خزمەتگوزاری' },
-    debit:    { bg: 'bg-amber-500/10 border-amber-500/30 text-amber-400', text: '📤 قەرز / بردراو — پارەی بردراو لە ئێمە' },
-    credit:   { bg: 'bg-blue-500/10 border-blue-500/30 text-blue-400', text: '📥 دانەوەی قەرز — پارەی هێنراو بۆ ئێمە' },
+    sale:     { bg: 'bg-green-50 border-green-200 text-green-700', text: '✅ فرۆشتن — داواکاری پارە لەسەر کڕیار' },
+    purchase: { bg: 'bg-red-50 border-red-200 text-red-600', text: '🛒 کڕین — دابینکردنی کاڵا یان خزمەتگوزاری' },
+    debit:    { bg: 'bg-amber-50 border-amber-200 text-amber-700', text: '📤 قەرز / بردراو — پارەی بردراو لە ئێمە' },
+    credit:   { bg: 'bg-cyan-50 border-cyan-200 text-cyan-700', text: '📥 دانەوەی قەرز — پارەی هێنراو بۆ ئێمە' },
 };
 
 function updatePreview() {
