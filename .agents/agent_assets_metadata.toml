@@ -6,3 +6,9 @@ id = "V1gm4fvuhbMU0vaPTWE8m"
 uri = "file://jwani-accounting-system.zip"
 type = "unspecified"
 title = "سیستەمی ژمێریاری ژوانی گەشتیاری — لەگەڵ vendor (ئامادە بۆ cPanel)"
+
+[[outputs]]
+id = "wE4WBCgm50R-Bzpn8B9KY"
+uri = "file://jwani_database_setup.zip"
+type = "unspecified"
+title = "jwani_database_setup.zip — داتابەیسی سیستەمی ژمێریاری"
