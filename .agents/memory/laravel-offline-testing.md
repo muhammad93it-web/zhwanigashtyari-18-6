@@ -16,3 +16,9 @@ There is NO local MySQL, and a backgrounded `php artisan serve` gets SIGKILLed. 
 **Why:** SQLite ignores `VARCHAR(n)` length limits; MySQL strict mode rejects overflow with `SQLSTATE[22001] Data too long`. A passing SQLite run does NOT prove MySQL safety.
 
 **How to apply:** keep every validator's `max:` in lockstep with its column length. Audit `string()`/`VARCHAR(255)` columns against controller `max:` rules before shipping a MySQL-targeted app. (Real bug found: `description` validated `max:500` against `VARCHAR(255)` columns.)
+
+# SQLite hides MySQL aggregate + ORDER BY error 1140
+
+**Why:** cloning an Eloquent builder that already has `->latest(col)`/`->orderBy(col)` and then adding an aggregate-only `selectRaw('SUM(...), COUNT(*)')->first()` leaves the `ORDER BY col` in the SQL with no `GROUP BY`. MySQL rejects this with `SQLSTATE[42000] 1140 Mixing of GROUP columns ... is illegal`. SQLite silently allows it, so offline tests pass while the live MySQL page 500s.
+
+**How to apply:** when building a totals/summary query from a cloned list query, strip the order first: `(clone $query)->reorder()->selectRaw('SUM(...)')->first()`. Audit every `(clone $query)->selectRaw('SUM` after a `latest()`/`orderBy()`. (Real bug: ContractorPayment/Expense/Income index totals.)

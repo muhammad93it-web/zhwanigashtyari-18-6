@@ -29,7 +29,7 @@ class ExpenseController extends Controller
             $query->whereDate('expense_date', '<=', $request->to_date);
         }
 
-        $totals = (clone $query)->selectRaw('SUM(amount_usd) usd, SUM(amount_iqd) iqd, COUNT(*) c')->first();
+        $totals = (clone $query)->reorder()->selectRaw('SUM(amount_usd) usd, SUM(amount_iqd) iqd, COUNT(*) c')->first();
         $expenses = $query->paginate(20)->withQueryString();
 
         return view('expenses.index', compact('expenses', 'totals'));

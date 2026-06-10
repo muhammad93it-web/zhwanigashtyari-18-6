@@ -29,7 +29,7 @@ class IncomeController extends Controller
             $query->whereDate('income_date', '<=', $request->to_date);
         }
 
-        $totals = (clone $query)->selectRaw('SUM(amount_usd) usd, SUM(amount_iqd) iqd, COUNT(*) c')->first();
+        $totals = (clone $query)->reorder()->selectRaw('SUM(amount_usd) usd, SUM(amount_iqd) iqd, COUNT(*) c')->first();
         $incomes = $query->paginate(20)->withQueryString();
 
         return view('incomes.index', compact('incomes', 'totals'));

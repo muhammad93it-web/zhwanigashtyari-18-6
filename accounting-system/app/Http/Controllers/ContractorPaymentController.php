@@ -21,7 +21,7 @@ class ContractorPaymentController extends Controller
             $query->where('contractor_id', $request->contractor_id);
         }
 
-        $totals = (clone $query)->selectRaw('SUM(amount_usd) usd, SUM(amount_iqd) iqd, COUNT(*) c')->first();
+        $totals = (clone $query)->reorder()->selectRaw('SUM(amount_usd) usd, SUM(amount_iqd) iqd, COUNT(*) c')->first();
         $payments = $query->paginate(20)->withQueryString();
         $contractors = Contractor::orderBy('name')->get(['id', 'name']);
 
