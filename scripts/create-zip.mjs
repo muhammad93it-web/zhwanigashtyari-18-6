@@ -29,7 +29,7 @@ const EXCLUDE = [
   /(^|\/)\.DS_Store$/,
   /(^|\/)node_modules(\/|$)/,
   /(^|\/)bootstrap\/cache\/.*\.php$/,
-  /(^|\/)storage\/framework\/(views|cache|sessions)\/.+/,
+  /(^|\/)storage\/framework\/(views|cache|sessions)\/(?!\.gitkeep$).+/,
   /(^|\/)storage\/logs\/.+\.log$/,
 ];
 
