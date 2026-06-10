@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'سیستەمی ژمێریاری') — ژوانی گەشتیاری</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -80,8 +81,8 @@
     <aside id="sidebar" class="fixed lg:static inset-y-0 right-0 z-40 w-72 sm:w-64 flex-shrink-0 flex flex-col bg-white border-l border-slate-200 overflow-y-auto transform translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
         <div class="p-5 border-b border-slate-200 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-md shadow-green-500/30">
-                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/></svg>
+                <div class="w-10 h-10 flex items-center justify-center">
+                    <img src="{{ asset('images/logo.png') }}" alt="ژوانی گەشتیاری" class="w-10 h-10 object-contain">
                 </div>
                 <div>
                     <div class="text-[11px] text-slate-400 leading-tight">سیستەمی ژمێریاری</div>
