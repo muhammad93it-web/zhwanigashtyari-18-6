@@ -35,6 +35,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   `email` varchar(255) NOT NULL,
   `email_verified_at` timestamp NULL DEFAULT NULL,
   `password` varchar(255) NOT NULL,
+  `is_admin` tinyint(1) NOT NULL DEFAULT 0,
+  `permissions` text DEFAULT NULL,
   `remember_token` varchar(100) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -350,11 +352,12 @@ INSERT INTO `migrations` (`migration`, `batch`) VALUES
   ('2024_01_01_000009_create_material_movements_table', 1),
   ('2024_01_01_000010_create_contractors_table', 1),
   ('2024_01_01_000011_create_contractor_payments_table', 1),
-  ('2024_01_01_000012_create_documents_table', 1);
+  ('2024_01_01_000012_create_documents_table', 1),
+  ('2024_01_01_000013_add_role_to_users_table', 1);
 
 -- Admin user  (login: admin@jwani.com  /  password)
-INSERT INTO `users` (`name`, `email`, `password`, `created_at`, `updated_at`) VALUES
-  ('بەڕێوەبەر', 'admin@jwani.com', '$2y$10$oMqwFOWnc4ebLn8p5hBLkOFNHeOyBszF4kwmjEoqbpqEAUcKNupXK', NOW(), NOW());
+INSERT INTO `users` (`name`, `email`, `password`, `is_admin`, `created_at`, `updated_at`) VALUES
+  ('بەڕێوەبەر', 'admin@jwani.com', '$2y$10$oMqwFOWnc4ebLn8p5hBLkOFNHeOyBszF4kwmjEoqbpqEAUcKNupXK', 1, NOW(), NOW());
 
 -- Initial exchange rate
 INSERT INTO `exchange_rates` (`usd_to_iqd`, `notes`, `set_by`, `effective_from`, `created_at`, `updated_at`) VALUES

@@ -28,6 +28,9 @@ class DatabaseSeeder extends Seeder
                 'password' => Hash::make('password'),
             ]
         );
+        if (! $admin->is_admin) {
+            $admin->forceFill(['is_admin' => true])->save();
+        }
 
         // Initial exchange rate
         ExchangeRate::firstOrCreate(

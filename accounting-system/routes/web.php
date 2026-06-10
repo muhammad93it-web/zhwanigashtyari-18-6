@@ -15,6 +15,7 @@ use App\Http\Controllers\MaterialMovementController;
 use App\Http\Controllers\PrintCenterController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 // Auth Routes
@@ -34,44 +35,69 @@ Route::middleware('auth')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     // ===== دارایی / Finance =====
-    Route::resource('incomes', IncomeController::class);
-    Route::resource('expenses', ExpenseController::class);
-    Route::resource('debts', DebtController::class);
-    Route::post('/debts/{debt}/mark-paid', [DebtController::class, 'markPaid'])->name('debts.mark-paid');
+    Route::middleware('perm:finance')->group(function () {
+        Route::resource('incomes', IncomeController::class);
+        Route::resource('expenses', ExpenseController::class);
+        Route::resource('debts', DebtController::class);
+        Route::post('/debts/{debt}/mark-paid', [DebtController::class, 'markPaid'])->name('debts.mark-paid');
+    });
 
     // ===== کڕین و فرۆشتن و کۆگا / Trading & Inventory =====
-    Route::resource('materials', MaterialController::class);
-    Route::get('/materials-buy', [MaterialMovementController::class, 'create'])->defaults('type', 'purchase')->name('materials.buy');
-    Route::get('/materials-sell', [MaterialMovementController::class, 'create'])->defaults('type', 'sale')->name('materials.sell');
-    Route::post('/material-movements', [MaterialMovementController::class, 'store'])->name('movements.store');
-    Route::delete('/material-movements/{movement}', [MaterialMovementController::class, 'destroy'])->name('movements.destroy');
+    Route::middleware('perm:trading')->group(function () {
+        Route::resource('materials', MaterialController::class);
+        Route::get('/materials-buy', [MaterialMovementController::class, 'create'])->defaults('type', 'purchase')->name('materials.buy');
+        Route::get('/materials-sell', [MaterialMovementController::class, 'create'])->defaults('type', 'sale')->name('materials.sell');
+        Route::post('/material-movements', [MaterialMovementController::class, 'store'])->name('movements.store');
+        Route::delete('/material-movements/{movement}', [MaterialMovementController::class, 'destroy'])->name('movements.destroy');
+    });
 
     // ===== وەستا / Contractors =====
-    Route::resource('contractors', ContractorController::class);
-    Route::resource('contractor-payments', ContractorPaymentController::class)->only(['index', 'create', 'store', 'destroy']);
+    Route::middleware('perm:contractors')->group(function () {
+        Route::resource('contractors', ContractorController::class);
+        Route::resource('contractor-payments', ContractorPaymentController::class)->only(['index', 'create', 'store', 'destroy']);
+    });
 
     // ===== ڕاپۆرتەکان / Reports =====
-    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
-    Route::get('/reports/daily', [ReportController::class, 'daily'])->name('reports.daily');
-    Route::get('/reports/summary', [ReportController::class, 'summary'])->name('reports.summary');
-    Route::get('/reports/project-cost', [ReportController::class, 'projectCost'])->name('reports.project-cost');
-    Route::get('/reports/client/{client}', [ReportController::class, 'clientReport'])->name('reports.client');
-    Route::get('/reports/export/excel', [ReportController::class, 'exportExcel'])->name('reports.export.excel');
-    Route::get('/reports/client/{client}/export', [ReportController::class, 'exportClientExcel'])->name('reports.client.export');
+    Route::middleware('perm:reports')->group(function () {
+        Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/daily', [ReportController::class, 'daily'])->name('reports.daily');
+        Route::get('/reports/summary', [ReportController::class, 'summary'])->name('reports.summary');
+        Route::get('/reports/project-cost', [ReportController::class, 'projectCost'])->name('reports.project-cost');
+        Route::get('/reports/client/{client}', [ReportController::class, 'clientReport'])->name('reports.client');
+        Route::get('/reports/export/excel', [ReportController::class, 'exportExcel'])->name('reports.export.excel');
+        Route::get('/reports/client/{client}/export', [ReportController::class, 'exportClientExcel'])->name('reports.client.export');
+    });
 
     // ===== کارگێڕی / Administration =====
-    Route::resource('documents', DocumentController::class);
-    Route::get('/documents/{document}/print', [DocumentController::class, 'print'])->name('documents.print');
-    Route::get('/print-center', [PrintCenterController::class, 'index'])->name('print-center.index');
-    Route::get('/print-center/print', [PrintCenterController::class, 'print'])->name('print-center.print');
+    Route::middleware('perm:documents')->group(function () {
+        Route::resource('documents', DocumentController::class);
+        Route::get('/documents/{document}/print', [DocumentController::class, 'print'])->name('documents.print');
+    });
+    Route::middleware('perm:print_center')->group(function () {
+        Route::get('/print-center', [PrintCenterController::class, 'index'])->name('print-center.index');
+        Route::get('/print-center/print', [PrintCenterController::class, 'print'])->name('print-center.print');
+    });
 
     // ===== ڕێکخستن / Settings =====
-    Route::resource('clients', ClientController::class);
+    Route::middleware('perm:clients')->group(function () {
+        Route::resource('clients', ClientController::class);
+    });
 
-    Route::resource('transactions', TransactionController::class)->except(['edit', 'update']);
-    Route::get('/transactions/{transaction}/receipt', [TransactionController::class, 'receipt'])->name('transactions.receipt');
-    Route::get('/transactions/{transaction}/print', [TransactionController::class, 'printReceipt'])->name('transactions.print');
+    Route::middleware('perm:transactions')->group(function () {
+        Route::resource('transactions', TransactionController::class)->except(['edit', 'update']);
+        Route::get('/transactions/{transaction}/receipt', [TransactionController::class, 'receipt'])->name('transactions.receipt');
+        Route::get('/transactions/{transaction}/print', [TransactionController::class, 'printReceipt'])->name('transactions.print');
+    });
 
-    Route::resource('exchange-rates', ExchangeRateController::class)->only(['index', 'store', 'destroy']);
-    Route::get('/exchange-rates/current', [ExchangeRateController::class, 'current'])->name('exchange-rates.current');
+    Route::middleware('perm:exchange_rates')->group(function () {
+        Route::resource('exchange-rates', ExchangeRateController::class)->only(['index', 'store', 'destroy']);
+        Route::get('/exchange-rates/current', [ExchangeRateController::class, 'current'])->name('exchange-rates.current');
+    });
+
+    // ===== بەڕێوەبردنی بەکارهێنەران / User management (admin only) =====
+    Route::middleware('admin')->group(function () {
+        Route::resource('users', UserController::class)->except(['show']);
+        Route::get('users/{user}/password', [UserController::class, 'editPassword'])->name('users.password.edit');
+        Route::put('users/{user}/password', [UserController::class, 'updatePassword'])->name('users.password.update');
+    });
 });

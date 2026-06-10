@@ -1,3 +1,4 @@
 - [PHP/Laravel in this env](php-laravel-env.md) — PHP+Composer installable via php-8.2 module; L11 skeleton needs L11 framework + a hand-made base Controller; ZIP via scripts/create-zip.mjs
 - [Laravel offline testing](laravel-offline-testing.md) — no MySQL/persistent serve; boot kernel in /tmp script + SQLite; bind request before Auth::setUser; SQLite hides MySQL VARCHAR-overflow so keep validator max: == column length
 - [Jwani login user-dropdown security](jwani-auth-dropdown.md) — login/forgot dropdowns use user IDs (not emails) + generic reset response to avoid public email leak/enumeration
+- [Jwani dual install/upgrade paths](jwani-dual-install-paths.md) — schema changes must stay safe across fresh setup SQL, idempotent upgrade SQL, AND artisan migrate; touch all three in lockstep
