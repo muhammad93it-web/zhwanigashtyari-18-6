@@ -209,7 +209,12 @@
             </div>
             <div class="flex items-center gap-3">
                 <div class="hidden sm:block text-xs text-slate-500 font-medium">
-                    {{ now()->locale('ku')->isoFormat('dddd، D MMMM YYYY') }}
+                    @php
+                        $kWeekdays = ['یەکشەممە','دووشەممە','سێشەممە','چوارشەممە','پێنجشەممە','هەینی','شەممە'];
+                        $kMonths = [1=>'کانوونی دووەم',2=>'شوبات',3=>'ئازار',4=>'نیسان',5=>'ئایار',6=>'حوزەیران',7=>'تەمموز',8=>'ئاب',9=>'ئەیلوول',10=>'تشرینی یەکەم',11=>'تشرینی دووەم',12=>'کانوونی یەکەم'];
+                        $kNow = now();
+                    @endphp
+                    {{ $kWeekdays[$kNow->dayOfWeek] }}، {{ $kNow->day }}ی {{ $kMonths[$kNow->month] }} {{ $kNow->year }}
                 </div>
             </div>
         </header>
