@@ -2,3 +2,4 @@
 - [Laravel offline testing](laravel-offline-testing.md) — no MySQL/persistent serve; boot kernel in /tmp script + SQLite; bind request before Auth::setUser; SQLite hides MySQL VARCHAR-overflow so keep validator max: == column length
 - [Jwani login user-dropdown security](jwani-auth-dropdown.md) — login/forgot dropdowns use user IDs (not emails) + generic reset response to avoid public email leak/enumeration
 - [Jwani dual install/upgrade paths](jwani-dual-install-paths.md) — schema changes must stay safe across fresh setup SQL, idempotent upgrade SQL, AND artisan migrate; touch all three in lockstep
+- [Jwani cPanel asset paths](jwani-cpanel-asset-paths.md) — Laravel asset() image links break on the live shared host; inline small images as base64 data URI in Blade
