@@ -79,7 +79,7 @@ class TransactionController extends Controller
             'type'             => 'required|in:sale,purchase,debit,credit',
             'currency'         => 'required|in:USD,IQD',
             'amount'           => 'required|numeric|min:0.01',
-            'description'      => 'required|string|max:500',
+            'description'      => 'required|string|max:255',
             'transaction_date' => 'required|date',
             'notes'            => 'nullable|string|max:1000',
         ]);

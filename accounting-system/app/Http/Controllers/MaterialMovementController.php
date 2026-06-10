@@ -10,6 +10,7 @@ use App\Traits\CalculatesCurrency;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class MaterialMovementController extends Controller
 {
@@ -44,18 +45,27 @@ class MaterialMovementController extends Controller
         $amounts = $this->currencyAmounts($data['currency'], $amount, $rate);
 
         DB::transaction(function () use ($data, $rate, $amount, $amounts) {
+            $material = Material::lockForUpdate()->find($data['material_id']);
+
+            if ($data['type'] === 'purchase') {
+                $material->current_stock = (float) $material->current_stock + (float) $data['quantity'];
+            } else {
+                if ((float) $material->current_stock < (float) $data['quantity']) {
+                    throw ValidationException::withMessages([
+                        'quantity' => 'بڕی کۆگا بەس نییە. کۆگای بەردەست: '
+                            . rtrim(rtrim(number_format((float) $material->current_stock, 3), '0'), '.')
+                            . ' ' . $material->unit,
+                    ]);
+                }
+                $material->current_stock = (float) $material->current_stock - (float) $data['quantity'];
+            }
+
             MaterialMovement::create(array_merge($data, $amounts, [
                 'amount' => $amount,
                 'exchange_rate_usd_to_iqd' => $rate,
                 'user_id' => Auth::id(),
             ]));
 
-            $material = Material::lockForUpdate()->find($data['material_id']);
-            if ($data['type'] === 'purchase') {
-                $material->current_stock = (float) $material->current_stock + (float) $data['quantity'];
-            } else {
-                $material->current_stock = (float) $material->current_stock - (float) $data['quantity'];
-            }
             $material->save();
         });
 
@@ -70,6 +80,11 @@ class MaterialMovementController extends Controller
             if ($material) {
                 // Reverse the stock effect
                 if ($movement->type === 'purchase') {
+                    if ((float) $material->current_stock < (float) $movement->quantity) {
+                        throw ValidationException::withMessages([
+                            'movement' => 'ناتوانرێت بسڕدرێتەوە: کۆگای بەردەست کەمترە لە بڕی کڕینەکە، چونکە بەشێکی فرۆشراوە.',
+                        ]);
+                    }
                     $material->current_stock = (float) $material->current_stock - (float) $movement->quantity;
                 } else {
                     $material->current_stock = (float) $material->current_stock + (float) $movement->quantity;

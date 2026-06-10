@@ -19,7 +19,7 @@ class ExchangeRateController extends Controller
     {
         $validated = $request->validate([
             'usd_to_iqd' => 'required|numeric|min:1',
-            'notes'      => 'nullable|string|max:500',
+            'notes'      => 'nullable|string|max:255',
         ]);
 
         ExchangeRate::create([

@@ -44,7 +44,7 @@ class ContractorPaymentController extends Controller
             'currency'      => 'required|in:USD,IQD',
             'amount'        => 'required|numeric|min:0.01',
             'meters'        => 'nullable|numeric|min:0',
-            'description'   => 'nullable|string|max:500',
+            'description'   => 'nullable|string|max:255',
             'payment_date'  => 'required|date',
             'notes'         => 'nullable|string|max:1000',
         ]);

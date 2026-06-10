@@ -47,7 +47,7 @@ class IncomeController extends Controller
             'category'    => 'nullable|string|max:255',
             'currency'    => 'required|in:USD,IQD',
             'amount'      => 'required|numeric|min:0.01',
-            'description' => 'nullable|string|max:500',
+            'description' => 'nullable|string|max:255',
             'income_date' => 'required|date',
             'notes'       => 'nullable|string|max:1000',
         ]);
@@ -78,7 +78,7 @@ class IncomeController extends Controller
             'category'    => 'nullable|string|max:255',
             'currency'    => 'required|in:USD,IQD',
             'amount'      => 'required|numeric|min:0.01',
-            'description' => 'nullable|string|max:500',
+            'description' => 'nullable|string|max:255',
             'income_date' => 'required|date',
             'notes'       => 'nullable|string|max:1000',
         ]);
