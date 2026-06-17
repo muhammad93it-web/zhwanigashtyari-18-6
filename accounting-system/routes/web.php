@@ -10,6 +10,7 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ExchangeRateController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\IncomeController;
+use App\Http\Controllers\LaborPaymentController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\MaterialMovementController;
 use App\Http\Controllers\PrintCenterController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\SupplierPaymentController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WorkerController;
 use Illuminate\Support\Facades\Route;
 
 // Auth Routes
@@ -65,7 +67,16 @@ Route::middleware('auth')->group(function () {
         Route::resource('suppliers', SupplierController::class);
         Route::get('/suppliers/{supplier}/pay', [SupplierPaymentController::class, 'create'])->name('suppliers.pay');
         Route::post('/suppliers/{supplier}/pay', [SupplierPaymentController::class, 'store'])->name('suppliers.pay.store');
-        Route::resource('purchase-invoices', PurchaseInvoiceController::class)->only(['index', 'create', 'store', 'show', 'destroy']);
+        Route::resource('purchase-invoices', PurchaseInvoiceController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
+        Route::get('/purchase-invoices/{purchase_invoice}/print', [PurchaseInvoiceController::class, 'print'])->name('purchase-invoices.print');
+        Route::get('/purchase-invoices/{purchase_invoice}/export-excel', [PurchaseInvoiceController::class, 'exportExcel'])->name('purchase-invoices.export-excel');
+        Route::get('/purchase-invoices/{purchase_invoice}/export-word', [PurchaseInvoiceController::class, 'exportWord'])->name('purchase-invoices.export-word');
+    });
+
+    // ===== کرێی کار و کرێکاران / Labor =====
+    Route::middleware('perm:labor')->group(function () {
+        Route::resource('workers', WorkerController::class);
+        Route::resource('labor-payments', LaborPaymentController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     });
 
     // ===== وەستا / Contractors =====

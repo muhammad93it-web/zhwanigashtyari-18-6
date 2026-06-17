@@ -172,6 +172,115 @@ SET @sql_exp_reason := IF(@has_exp_reason = 0,
   'SELECT 1');
 PREPARE st_er FROM @sql_exp_reason; EXECUTE st_er; DEALLOCATE PREPARE st_er;
 
+-- =====================================================================
+--  UPGRADE 2 — دراوی هەر هێڵێک (IQD/USD) + زانیاری گەیەنەر + باڵانسی فرە-دراو + کرێی کار
+--  هەموو ئەمانە idempotent-ن (سەلامەتە چەند جارێک کاری پێبکرێت).
+-- =====================================================================
+
+-- purchase_invoices: supplier_id nullable (گەیەنەری کاتی بەبێ هەژمار)
+ALTER TABLE `purchase_invoices` MODIFY `supplier_id` BIGINT UNSIGNED NULL;
+
+-- purchase_invoices: deliverer_name
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='purchase_invoices' AND COLUMN_NAME='deliverer_name');
+SET @s := IF(@c=0,'ALTER TABLE `purchase_invoices` ADD COLUMN `deliverer_name` VARCHAR(255) NULL AFTER `supplier_id`','SELECT 1');
+PREPARE p FROM @s; EXECUTE p; DEALLOCATE PREPARE p;
+
+-- purchase_invoices: deliverer_phone
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='purchase_invoices' AND COLUMN_NAME='deliverer_phone');
+SET @s := IF(@c=0,'ALTER TABLE `purchase_invoices` ADD COLUMN `deliverer_phone` VARCHAR(255) NULL AFTER `deliverer_name`','SELECT 1');
+PREPARE p FROM @s; EXECUTE p; DEALLOCATE PREPARE p;
+
+-- purchase_invoices: deliverer_address
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='purchase_invoices' AND COLUMN_NAME='deliverer_address');
+SET @s := IF(@c=0,'ALTER TABLE `purchase_invoices` ADD COLUMN `deliverer_address` VARCHAR(255) NULL AFTER `deliverer_phone`','SELECT 1');
+PREPARE p FROM @s; EXECUTE p; DEALLOCATE PREPARE p;
+
+-- purchase_invoices: vehicle_number
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='purchase_invoices' AND COLUMN_NAME='vehicle_number');
+SET @s := IF(@c=0,'ALTER TABLE `purchase_invoices` ADD COLUMN `vehicle_number` VARCHAR(255) NULL AFTER `deliverer_address`','SELECT 1');
+PREPARE p FROM @s; EXECUTE p; DEALLOCATE PREPARE p;
+
+-- purchase_invoices: vehicle_type
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='purchase_invoices' AND COLUMN_NAME='vehicle_type');
+SET @s := IF(@c=0,'ALTER TABLE `purchase_invoices` ADD COLUMN `vehicle_type` VARCHAR(255) NULL AFTER `vehicle_number`','SELECT 1');
+PREPARE p FROM @s; EXECUTE p; DEALLOCATE PREPARE p;
+
+-- purchase_invoices: project_id (+ FK)
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='purchase_invoices' AND COLUMN_NAME='project_id');
+SET @s := IF(@c=0,'ALTER TABLE `purchase_invoices` ADD COLUMN `project_id` BIGINT UNSIGNED NULL AFTER `user_id`','SELECT 1');
+PREPARE p FROM @s; EXECUTE p; DEALLOCATE PREPARE p;
+SET @c := (SELECT COUNT(*) FROM information_schema.TABLE_CONSTRAINTS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='purchase_invoices' AND CONSTRAINT_NAME='purchase_invoices_project_id_foreign');
+SET @s := IF(@c=0,'ALTER TABLE `purchase_invoices` ADD CONSTRAINT `purchase_invoices_project_id_foreign` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE SET NULL','SELECT 1');
+PREPARE p FROM @s; EXECUTE p; DEALLOCATE PREPARE p;
+
+-- purchase_invoices: per-currency totals
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='purchase_invoices' AND COLUMN_NAME='total_iqd');
+SET @s := IF(@c=0,'ALTER TABLE `purchase_invoices` ADD COLUMN `total_iqd` DECIMAL(15,2) NOT NULL DEFAULT 0, ADD COLUMN `total_usd` DECIMAL(15,2) NOT NULL DEFAULT 0, ADD COLUMN `paid_iqd` DECIMAL(15,2) NOT NULL DEFAULT 0, ADD COLUMN `paid_usd` DECIMAL(15,2) NOT NULL DEFAULT 0, ADD COLUMN `remaining_iqd` DECIMAL(15,2) NOT NULL DEFAULT 0, ADD COLUMN `remaining_usd` DECIMAL(15,2) NOT NULL DEFAULT 0','SELECT 1');
+PREPARE p FROM @s; EXECUTE p; DEALLOCATE PREPARE p;
+
+-- purchase_invoice_details: currency
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='purchase_invoice_details' AND COLUMN_NAME='currency');
+SET @s := IF(@c=0,'ALTER TABLE `purchase_invoice_details` ADD COLUMN `currency` ENUM(''IQD'',''USD'') NOT NULL DEFAULT ''IQD'' AFTER `line_total`','SELECT 1');
+PREPARE p FROM @s; EXECUTE p; DEALLOCATE PREPARE p;
+
+-- suppliers: balance_iqd / balance_usd
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='suppliers' AND COLUMN_NAME='balance_iqd');
+SET @s := IF(@c=0,'ALTER TABLE `suppliers` ADD COLUMN `balance_iqd` DECIMAL(15,2) NOT NULL DEFAULT 0 AFTER `balance`, ADD COLUMN `balance_usd` DECIMAL(15,2) NOT NULL DEFAULT 0 AFTER `balance_iqd`','SELECT 1');
+PREPARE p FROM @s; EXECUTE p; DEALLOCATE PREPARE p;
+
+-- supplier_transactions: currency
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='supplier_transactions' AND COLUMN_NAME='currency');
+SET @s := IF(@c=0,'ALTER TABLE `supplier_transactions` ADD COLUMN `currency` ENUM(''IQD'',''USD'') NOT NULL DEFAULT ''IQD'' AFTER `type`','SELECT 1');
+PREPARE p FROM @s; EXECUTE p; DEALLOCATE PREPARE p;
+
+-- ---------------------------------------------------------------------
+-- workers (کرێکار/وەستا)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `workers` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `role` varchar(255) DEFAULT NULL,
+  `phone` varchar(255) DEFAULT NULL,
+  `default_hourly_rate` decimal(15,2) DEFAULT NULL,
+  `default_currency` enum('IQD','USD') NOT NULL DEFAULT 'IQD',
+  `notes` text,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `workers_name_index` (`name`),
+  KEY `workers_is_active_index` (`is_active`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
+-- labor_payments (کرێی کار — پارەدانی کرێکار بەسەعات/جێگیر)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `labor_payments` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint unsigned DEFAULT NULL,
+  `project_id` bigint unsigned DEFAULT NULL,
+  `worker_id` bigint unsigned DEFAULT NULL,
+  `worker_name` varchar(255) NOT NULL,
+  `role` varchar(255) DEFAULT NULL,
+  `date` date NOT NULL,
+  `is_hourly` tinyint(1) NOT NULL DEFAULT '1',
+  `hours` decimal(10,2) DEFAULT NULL,
+  `hourly_rate` decimal(15,2) DEFAULT NULL,
+  `amount` decimal(15,2) NOT NULL,
+  `currency` enum('IQD','USD') NOT NULL DEFAULT 'IQD',
+  `notes` text,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `labor_payments_date_index` (`date`),
+  KEY `labor_payments_user_id_foreign` (`user_id`),
+  KEY `labor_payments_project_id_foreign` (`project_id`),
+  KEY `labor_payments_worker_id_foreign` (`worker_id`),
+  CONSTRAINT `labor_payments_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `labor_payments_project_id_foreign` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `labor_payments_worker_id_foreign` FOREIGN KEY (`worker_id`) REFERENCES `workers` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- ---------------------------------------------------------------------
 -- Mark the new migrations as applied (INSERT IGNORE = safe to re-run)
 -- so a later `php artisan migrate` does not try to re-create them.
@@ -185,6 +294,9 @@ FROM (
   UNION ALL SELECT '2026_06_17_000004_create_purchase_invoices_table'
   UNION ALL SELECT '2026_06_17_000005_create_purchase_invoice_details_table'
   UNION ALL SELECT '2026_06_17_000006_add_project_fields_to_expenses_table'
+  UNION ALL SELECT '2026_06_17_000007_extend_purchases_for_currency_and_deliverer'
+  UNION ALL SELECT '2026_06_17_000008_create_workers_table'
+  UNION ALL SELECT '2026_06_17_000009_create_labor_payments_table'
 ) AS v
 WHERE NOT EXISTS (
   SELECT 1 FROM (SELECT * FROM `migrations`) AS m2 WHERE m2.`migration` = v.migration

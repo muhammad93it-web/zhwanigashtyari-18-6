@@ -36,7 +36,7 @@ class MaterialController extends Controller
     {
         $data = $request->validate([
             'name'          => 'required|string|max:255',
-            'unit'          => 'required|string|max:50',
+            'unit'          => 'nullable|string|max:50',
             'category'      => 'nullable|string|max:255',
             'current_stock' => 'nullable|numeric|min:0',
             'min_stock'     => 'nullable|numeric|min:0',
@@ -44,6 +44,7 @@ class MaterialController extends Controller
             'is_active'     => 'boolean',
         ]);
 
+        $data['unit'] = $data['unit'] ?? 'دانە';
         $data['current_stock'] = $data['current_stock'] ?? 0;
         $data['is_active'] = $request->boolean('is_active', true);
 
@@ -67,13 +68,14 @@ class MaterialController extends Controller
     {
         $data = $request->validate([
             'name'      => 'required|string|max:255',
-            'unit'      => 'required|string|max:50',
+            'unit'      => 'nullable|string|max:50',
             'category'  => 'nullable|string|max:255',
             'min_stock' => 'nullable|numeric|min:0',
             'notes'     => 'nullable|string|max:1000',
             'is_active' => 'boolean',
         ]);
 
+        $data['unit'] = $data['unit'] ?: ($material->unit ?: 'دانە');
         $data['is_active'] = $request->boolean('is_active', true);
 
         $material->update($data);

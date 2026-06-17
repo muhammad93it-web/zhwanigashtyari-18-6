@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Supplier extends Model
 {
     protected $fillable = [
-        'name', 'phone', 'balance', 'notes', 'is_active',
+        'name', 'phone', 'balance', 'balance_iqd', 'balance_usd', 'notes', 'is_active',
     ];
 
     protected $casts = [
         'balance' => 'decimal:2',
+        'balance_iqd' => 'decimal:2',
+        'balance_usd' => 'decimal:2',
         'is_active' => 'boolean',
     ];
 

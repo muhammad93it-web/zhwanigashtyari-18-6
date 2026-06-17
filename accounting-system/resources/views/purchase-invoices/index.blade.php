@@ -12,10 +12,22 @@
     <a href="{{ route('purchase-invoices.create') }}" class="btn-primary">+ کڕینی نوێ</a>
 </div>
 
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-    <div class="stat-card"><div class="text-xs text-slate-400">کۆی کڕین</div><div class="text-lg font-extrabold text-slate-800">{{ $num($totals->total ?? 0) }}</div></div>
-    <div class="stat-card"><div class="text-xs text-slate-400">دراوە</div><div class="text-lg font-extrabold text-green-700">{{ $num($totals->paid ?? 0) }}</div></div>
-    <div class="stat-card"><div class="text-xs text-slate-400">ماوە (قەرز)</div><div class="text-lg font-extrabold text-red-600">{{ $num($totals->remaining ?? 0) }}</div></div>
+<div class="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+    <div class="stat-card">
+        <div class="text-xs text-slate-400">کۆی کڕین</div>
+        <div class="text-lg font-extrabold text-slate-800">{{ $num($totals->total_iqd ?? 0) }} <span class="text-xs text-slate-400">د.ع</span></div>
+        <div class="text-sm font-bold text-slate-700">{{ $num($totals->total_usd ?? 0) }} <span class="text-xs text-slate-400">$</span></div>
+    </div>
+    <div class="stat-card">
+        <div class="text-xs text-slate-400">دراوە</div>
+        <div class="text-lg font-extrabold text-green-700">{{ $num($totals->paid_iqd ?? 0) }} <span class="text-xs text-slate-400">د.ع</span></div>
+        <div class="text-sm font-bold text-green-700">{{ $num($totals->paid_usd ?? 0) }} <span class="text-xs text-slate-400">$</span></div>
+    </div>
+    <div class="stat-card">
+        <div class="text-xs text-slate-400">ماوە (قەرز)</div>
+        <div class="text-lg font-extrabold text-red-600">{{ $num($totals->remaining_iqd ?? 0) }} <span class="text-xs text-slate-400">د.ع</span></div>
+        <div class="text-sm font-bold text-red-600">{{ $num($totals->remaining_usd ?? 0) }} <span class="text-xs text-slate-400">$</span></div>
+    </div>
 </div>
 
 <form method="GET" action="{{ route('purchase-invoices.index') }}" class="card p-4 mb-4 grid grid-cols-1 sm:grid-cols-4 gap-3">
@@ -48,10 +60,11 @@
             <thead>
                 <tr class="text-right text-xs text-slate-500 border-b border-slate-200">
                     <th class="px-4 py-3 font-semibold">#</th>
-                    <th class="px-4 py-3 font-semibold">دابینکەر</th>
+                    <th class="px-4 py-3 font-semibold">دابینکەر / گەیەنەر</th>
+                    <th class="px-4 py-3 font-semibold">پڕۆژە</th>
                     <th class="px-4 py-3 font-semibold">بەروار</th>
-                    <th class="px-4 py-3 font-semibold">کۆ</th>
-                    <th class="px-4 py-3 font-semibold">دراوە</th>
+                    <th class="px-4 py-3 font-semibold">کۆ (د.ع)</th>
+                    <th class="px-4 py-3 font-semibold">کۆ ($)</th>
                     <th class="px-4 py-3 font-semibold">ماوە</th>
                     <th class="px-4 py-3 font-semibold">کردارەکان</th>
                 </tr>
@@ -60,14 +73,19 @@
                 @forelse($invoices as $inv)
                     <tr class="table-row">
                         <td class="px-4 py-3 font-semibold text-slate-800">#{{ $inv->id }}</td>
-                        <td class="px-4 py-3 text-slate-700">{{ $inv->supplier->name ?? '—' }}</td>
+                        <td class="px-4 py-3 text-slate-700">{{ $inv->party_name }}</td>
+                        <td class="px-4 py-3 text-slate-600">{{ $inv->project->name ?? '—' }}</td>
                         <td class="px-4 py-3 text-slate-500">{{ optional($inv->date)->format('Y-m-d') }}</td>
-                        <td class="px-4 py-3 font-semibold text-slate-800">{{ $num($inv->total_amount) }}</td>
-                        <td class="px-4 py-3 text-green-700">{{ $num($inv->paid_amount) }}</td>
-                        <td class="px-4 py-3 {{ (float)$inv->remaining_amount > 0 ? 'text-red-600 font-semibold' : 'text-slate-500' }}">{{ $num($inv->remaining_amount) }}</td>
+                        <td class="px-4 py-3 font-semibold text-slate-800">{{ $num($inv->total_iqd) }}</td>
+                        <td class="px-4 py-3 font-semibold text-slate-800">{{ $num($inv->total_usd) }}</td>
+                        <td class="px-4 py-3 text-xs">
+                            <span class="{{ (float)$inv->remaining_iqd > 0 ? 'text-red-600 font-semibold' : 'text-slate-400' }}">{{ $num($inv->remaining_iqd) }} د.ع</span><br>
+                            <span class="{{ (float)$inv->remaining_usd > 0 ? 'text-red-600 font-semibold' : 'text-slate-400' }}">{{ $num($inv->remaining_usd) }} $</span>
+                        </td>
                         <td class="px-4 py-3">
                             <div class="flex items-center gap-1.5">
                                 <a href="{{ route('purchase-invoices.show', $inv) }}" class="btn-info !px-3 !py-1.5">بینین</a>
+                                <a href="{{ route('purchase-invoices.edit', $inv) }}" class="btn-warning !px-3 !py-1.5">دەستکاری</a>
                                 <form method="POST" action="{{ route('purchase-invoices.destroy', $inv) }}" onsubmit="return confirm('سڕینەوەی وەسڵ کۆگا و باڵانس ڕاستدەکاتەوە. دڵنیایت؟')">
                                     @csrf
                                     @method('DELETE')
@@ -77,7 +95,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="7" class="px-4 py-10 text-center text-slate-400">هیچ کڕینێک نییە.</td></tr>
+                    <tr><td colspan="8" class="px-4 py-10 text-center text-slate-400">هیچ کڕینێک نییە.</td></tr>
                 @endforelse
             </tbody>
         </table>

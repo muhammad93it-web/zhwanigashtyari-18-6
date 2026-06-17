@@ -2,21 +2,34 @@
 
 @section('title', 'وەسڵی کڕین #' . $purchaseInvoice->id)
 @section('page-title', 'وەسڵی کڕین #' . $purchaseInvoice->id)
-@section('page-subtitle', $purchaseInvoice->supplier->name ?? '')
+@section('page-subtitle', $purchaseInvoice->party_name)
 
 @section('content')
-@php $num = fn($v) => number_format((float) $v, 0); @endphp
+@php
+    $num = fn($v) => number_format((float) $v, 0);
+    $inv = $purchaseInvoice;
+@endphp
 
-<div class="flex items-center justify-between mb-4">
+<div class="flex items-center justify-between mb-4 flex-wrap gap-2">
     <h2 class="text-base font-bold text-slate-800">وردەکاری وەسڵ</h2>
-    <a href="{{ route('purchase-invoices.index') }}" class="btn-outline">گەڕانەوە</a>
+    <div class="flex items-center gap-2 flex-wrap">
+        <a href="{{ route('purchase-invoices.print', $inv) }}" target="_blank" class="btn-info !px-3 !py-1.5">چاپ (A4)</a>
+        <a href="{{ route('purchase-invoices.export-excel', $inv) }}" class="btn-primary !px-3 !py-1.5">Excel</a>
+        <a href="{{ route('purchase-invoices.export-word', $inv) }}" class="btn-primary !px-3 !py-1.5">Word</a>
+        <a href="{{ route('purchase-invoices.edit', $inv) }}" class="btn-warning !px-3 !py-1.5">دەستکاری</a>
+        <a href="{{ route('purchase-invoices.index') }}" class="btn-outline !px-3 !py-1.5">گەڕانەوە</a>
+    </div>
 </div>
 
-<div class="card p-5 mb-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-    <div><div class="text-slate-400 text-xs">دابینکەر</div><div class="font-semibold text-slate-800">{{ $purchaseInvoice->supplier->name ?? '—' }}</div></div>
-    <div><div class="text-slate-400 text-xs">بەروار</div><div class="font-semibold text-slate-800">{{ optional($purchaseInvoice->date)->format('Y-m-d') }}</div></div>
-    <div><div class="text-slate-400 text-xs">تۆمارکار</div><div class="font-semibold text-slate-800">{{ $purchaseInvoice->user->name ?? '—' }}</div></div>
-    <div><div class="text-slate-400 text-xs">ماوە</div><div class="font-semibold {{ (float)$purchaseInvoice->remaining_amount > 0 ? 'text-red-600' : 'text-green-700' }}">{{ $num($purchaseInvoice->remaining_amount) }}</div></div>
+<div class="card p-5 mb-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 text-sm">
+    <div><div class="text-slate-400 text-xs">دابینکەر / گەیەنەر</div><div class="font-semibold text-slate-800">{{ $inv->party_name }}</div></div>
+    <div><div class="text-slate-400 text-xs">پڕۆژە</div><div class="font-semibold text-slate-800">{{ $inv->project->name ?? '—' }}</div></div>
+    <div><div class="text-slate-400 text-xs">بەروار</div><div class="font-semibold text-slate-800">{{ optional($inv->date)->format('Y-m-d') }}</div></div>
+    <div><div class="text-slate-400 text-xs">تۆمارکار</div><div class="font-semibold text-slate-800">{{ $inv->user->name ?? '—' }}</div></div>
+    @if($inv->deliverer_phone)<div><div class="text-slate-400 text-xs">مۆبایلی گەیەنەر</div><div class="font-semibold text-slate-800">{{ $inv->deliverer_phone }}</div></div>@endif
+    @if($inv->deliverer_address)<div><div class="text-slate-400 text-xs">ناونیشان</div><div class="font-semibold text-slate-800">{{ $inv->deliverer_address }}</div></div>@endif
+    @if($inv->vehicle_number)<div><div class="text-slate-400 text-xs">ژمارەی ئۆتۆمبێل</div><div class="font-semibold text-slate-800">{{ $inv->vehicle_number }}</div></div>@endif
+    @if($inv->vehicle_type)<div><div class="text-slate-400 text-xs">جۆری ئۆتۆمبێل</div><div class="font-semibold text-slate-800">{{ $inv->vehicle_type }}</div></div>@endif
 </div>
 
 <div class="card p-0 mb-4">
@@ -25,38 +38,43 @@
             <thead>
                 <tr class="text-right text-xs text-slate-500 border-b border-slate-200">
                     <th class="px-4 py-3 font-semibold">مەواد / جۆر</th>
-                    <th class="px-4 py-3 font-semibold">پڕۆژە</th>
                     <th class="px-4 py-3 font-semibold">بڕ</th>
                     <th class="px-4 py-3 font-semibold">نرخی یەکە</th>
+                    <th class="px-4 py-3 font-semibold">دراو</th>
                     <th class="px-4 py-3 font-semibold">کۆی هێڵ</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($purchaseInvoice->details as $d)
+                @foreach($inv->details as $d)
                     <tr class="table-row">
                         <td class="px-4 py-3 font-semibold text-slate-800">{{ $d->material->name ?? $d->custom_type }}</td>
-                        <td class="px-4 py-3 text-slate-600">{{ $d->project->name ?? '—' }}</td>
                         <td class="px-4 py-3 text-slate-600">{{ rtrim(rtrim(number_format((float)$d->quantity,3),'0'),'.') }} {{ $d->unit }}</td>
                         <td class="px-4 py-3 text-slate-600">{{ $num($d->unit_price) }}</td>
-                        <td class="px-4 py-3 font-semibold text-slate-800">{{ $num($d->line_total) }}</td>
+                        <td class="px-4 py-3 text-slate-600">{{ $d->currency === 'USD' ? '$' : 'د.ع' }}</td>
+                        <td class="px-4 py-3 font-semibold text-slate-800">{{ $num($d->line_total) }} {{ $d->currency === 'USD' ? '$' : 'د.ع' }}</td>
                     </tr>
                 @endforeach
             </tbody>
-            <tfoot>
-                <tr class="border-t border-slate-200 font-bold">
-                    <td colspan="4" class="px-4 py-3 text-left">کۆی گشتی</td>
-                    <td class="px-4 py-3 text-slate-900">{{ $num($purchaseInvoice->total_amount) }}</td>
-                </tr>
-                <tr class="text-green-700">
-                    <td colspan="4" class="px-4 py-2 text-left">دراوە</td>
-                    <td class="px-4 py-2">{{ $num($purchaseInvoice->paid_amount) }}</td>
-                </tr>
-            </tfoot>
         </table>
     </div>
 </div>
 
-@if($purchaseInvoice->notes)
-    <div class="card p-4 text-sm text-slate-600"><span class="text-slate-400">تێبینی: </span>{{ $purchaseInvoice->notes }}</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div class="card p-4">
+        <div class="font-bold text-sm text-slate-700 mb-2">دیناری عێراقی (د.ع)</div>
+        <div class="flex justify-between py-1 text-sm"><span class="text-slate-500">کۆی گشتی</span><span class="font-bold text-slate-800">{{ $num($inv->total_iqd) }}</span></div>
+        <div class="flex justify-between py-1 text-sm"><span class="text-slate-500">دراوە</span><span class="font-bold text-green-700">{{ $num($inv->paid_iqd) }}</span></div>
+        <div class="flex justify-between py-1 text-sm border-t border-slate-100 mt-1 pt-2"><span class="text-slate-500">ماوە</span><span class="font-bold {{ (float)$inv->remaining_iqd > 0 ? 'text-red-600' : 'text-green-700' }}">{{ $num($inv->remaining_iqd) }}</span></div>
+    </div>
+    <div class="card p-4">
+        <div class="font-bold text-sm text-slate-700 mb-2">دۆلاری ئەمریکی ($)</div>
+        <div class="flex justify-between py-1 text-sm"><span class="text-slate-500">کۆی گشتی</span><span class="font-bold text-slate-800">{{ $num($inv->total_usd) }}</span></div>
+        <div class="flex justify-between py-1 text-sm"><span class="text-slate-500">دراوە</span><span class="font-bold text-green-700">{{ $num($inv->paid_usd) }}</span></div>
+        <div class="flex justify-between py-1 text-sm border-t border-slate-100 mt-1 pt-2"><span class="text-slate-500">ماوە</span><span class="font-bold {{ (float)$inv->remaining_usd > 0 ? 'text-red-600' : 'text-green-700' }}">{{ $num($inv->remaining_usd) }}</span></div>
+    </div>
+</div>
+
+@if($inv->notes)
+    <div class="card p-4 text-sm text-slate-600 mt-4"><span class="text-slate-400">تێبینی: </span>{{ $inv->notes }}</div>
 @endif
 @endsection

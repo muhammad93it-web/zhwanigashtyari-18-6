@@ -8,7 +8,7 @@ class PurchaseInvoiceDetail extends Model
 {
     protected $fillable = [
         'purchase_invoice_id', 'material_id', 'custom_type', 'unit',
-        'quantity', 'unit_price', 'line_total', 'project_id',
+        'quantity', 'unit_price', 'line_total', 'currency', 'project_id',
     ];
 
     protected $casts = [

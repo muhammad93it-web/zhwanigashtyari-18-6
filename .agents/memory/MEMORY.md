@@ -4,5 +4,7 @@
 - [Blade inline @php pitfall](blade-inline-php-pitfall.md) — never use inline @php(EXPR); compiles to malformed `<?php(` and corrupts scope when a later @php block exists. Use @php ... @endphp; lint all views via compileString + php -l
 - [Jwani dual install/upgrade paths](jwani-dual-install-paths.md) — schema changes must stay safe across fresh setup SQL, idempotent upgrade SQL, AND artisan migrate; touch all three in lockstep
 - [Jwani cPanel asset paths](jwani-cpanel-asset-paths.md) — Laravel asset() image links break on the live shared host; inline small images as base64 data URI in Blade
+- [Jwani tenancy model](jwani-tenancy-model.md) — most modules (projects/suppliers/materials/contractors/labor) are shared company-wide, only purchase-invoices scope by user_id; don't "fix" labor to per-user
+- [Blade x: component collision](blade-x-namespace-collision.md) — Excel MSO `<x:...>` XML tags are parsed as Blade components and crash; wrap in @verbatim with static (no {{}}) content
 - [Jwani supplier ledger invariant](jwani-supplier-ledger-invariant.md) — each supplier_transactions row's balance_after must match its own signed type; reverse partial-paid purchases with two coherent rows + lock the invoice
 - [Jwani Replit preview](jwani-replit-preview.md) — PHP app preview via mockup-vite proxy bridge; artisan serve drops custom env vars; gate preview code on REPL_ID + replit.dev allowlist for live safety

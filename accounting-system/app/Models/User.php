@@ -18,6 +18,7 @@ class User extends Authenticatable
         'projects'       => 'پڕۆژەکان و تێچوون',
         'suppliers'      => 'دابینکەران و کڕینی وەسڵ',
         'contractors'    => 'وەستا و بەڵێندەرایەتی',
+        'labor'          => 'کرێی کار و کرێکاران',
         'reports'        => 'ڕاپۆرتەکان',
         'documents'      => 'نووسراوەکان',
         'print_center'   => 'چاپکردنی بەشەکان',

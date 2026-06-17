@@ -372,6 +372,8 @@ CREATE TABLE IF NOT EXISTS `suppliers` (
   `name` varchar(255) NOT NULL,
   `phone` varchar(255) DEFAULT NULL,
   `balance` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `balance_iqd` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `balance_usd` decimal(15,2) NOT NULL DEFAULT '0.00',
   `notes` text,
   `is_active` tinyint(1) NOT NULL DEFAULT '1',
   `created_at` timestamp NULL DEFAULT NULL,
@@ -389,6 +391,7 @@ CREATE TABLE IF NOT EXISTS `supplier_transactions` (
   `supplier_id` bigint unsigned NOT NULL,
   `user_id` bigint unsigned DEFAULT NULL,
   `type` enum('purchase','payment') NOT NULL,
+  `currency` enum('IQD','USD') NOT NULL DEFAULT 'IQD',
   `amount` decimal(15,2) NOT NULL,
   `balance_after` decimal(15,2) NOT NULL,
   `date` date NOT NULL,
@@ -408,11 +411,23 @@ CREATE TABLE IF NOT EXISTS `supplier_transactions` (
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `purchase_invoices` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `supplier_id` bigint unsigned NOT NULL,
+  `supplier_id` bigint unsigned DEFAULT NULL,
+  `deliverer_name` varchar(255) DEFAULT NULL,
+  `deliverer_phone` varchar(255) DEFAULT NULL,
+  `deliverer_address` varchar(255) DEFAULT NULL,
+  `vehicle_number` varchar(255) DEFAULT NULL,
+  `vehicle_type` varchar(255) DEFAULT NULL,
   `user_id` bigint unsigned NOT NULL,
+  `project_id` bigint unsigned DEFAULT NULL,
   `total_amount` decimal(15,2) NOT NULL DEFAULT '0.00',
   `paid_amount` decimal(15,2) NOT NULL DEFAULT '0.00',
   `remaining_amount` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `total_iqd` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `total_usd` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `paid_iqd` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `paid_usd` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `remaining_iqd` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `remaining_usd` decimal(15,2) NOT NULL DEFAULT '0.00',
   `date` date NOT NULL,
   `notes` text,
   `created_at` timestamp NULL DEFAULT NULL,
@@ -421,8 +436,10 @@ CREATE TABLE IF NOT EXISTS `purchase_invoices` (
   KEY `purchase_invoices_date_index` (`date`),
   KEY `purchase_invoices_supplier_id_foreign` (`supplier_id`),
   KEY `purchase_invoices_user_id_foreign` (`user_id`),
+  KEY `purchase_invoices_project_id_foreign` (`project_id`),
   CONSTRAINT `purchase_invoices_supplier_id_foreign` FOREIGN KEY (`supplier_id`) REFERENCES `suppliers` (`id`),
-  CONSTRAINT `purchase_invoices_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+  CONSTRAINT `purchase_invoices_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `purchase_invoices_project_id_foreign` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------
@@ -437,6 +454,7 @@ CREATE TABLE IF NOT EXISTS `purchase_invoice_details` (
   `quantity` decimal(15,3) NOT NULL DEFAULT '0.000',
   `unit_price` decimal(15,2) NOT NULL DEFAULT '0.00',
   `line_total` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `currency` enum('IQD','USD') NOT NULL DEFAULT 'IQD',
   `project_id` bigint unsigned DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -447,6 +465,54 @@ CREATE TABLE IF NOT EXISTS `purchase_invoice_details` (
   CONSTRAINT `purchase_invoice_details_purchase_invoice_id_foreign` FOREIGN KEY (`purchase_invoice_id`) REFERENCES `purchase_invoices` (`id`) ON DELETE CASCADE,
   CONSTRAINT `purchase_invoice_details_material_id_foreign` FOREIGN KEY (`material_id`) REFERENCES `materials` (`id`) ON DELETE SET NULL,
   CONSTRAINT `purchase_invoice_details_project_id_foreign` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
+-- workers (کرێکار/وەستا)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `workers` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `role` varchar(255) DEFAULT NULL,
+  `phone` varchar(255) DEFAULT NULL,
+  `default_hourly_rate` decimal(15,2) DEFAULT NULL,
+  `default_currency` enum('IQD','USD') NOT NULL DEFAULT 'IQD',
+  `notes` text,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `workers_name_index` (`name`),
+  KEY `workers_is_active_index` (`is_active`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
+-- labor_payments (کرێی کار — پارەدانی کرێکار بەسەعات/جێگیر)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `labor_payments` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint unsigned DEFAULT NULL,
+  `project_id` bigint unsigned DEFAULT NULL,
+  `worker_id` bigint unsigned DEFAULT NULL,
+  `worker_name` varchar(255) NOT NULL,
+  `role` varchar(255) DEFAULT NULL,
+  `date` date NOT NULL,
+  `is_hourly` tinyint(1) NOT NULL DEFAULT '1',
+  `hours` decimal(10,2) DEFAULT NULL,
+  `hourly_rate` decimal(15,2) DEFAULT NULL,
+  `amount` decimal(15,2) NOT NULL,
+  `currency` enum('IQD','USD') NOT NULL DEFAULT 'IQD',
+  `notes` text,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `labor_payments_date_index` (`date`),
+  KEY `labor_payments_user_id_foreign` (`user_id`),
+  KEY `labor_payments_project_id_foreign` (`project_id`),
+  KEY `labor_payments_worker_id_foreign` (`worker_id`),
+  CONSTRAINT `labor_payments_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `labor_payments_project_id_foreign` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `labor_payments_worker_id_foreign` FOREIGN KEY (`worker_id`) REFERENCES `workers` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================================
@@ -473,7 +539,10 @@ INSERT INTO `migrations` (`migration`, `batch`) VALUES
   ('2026_06_17_000003_create_supplier_transactions_table', 1),
   ('2026_06_17_000004_create_purchase_invoices_table', 1),
   ('2026_06_17_000005_create_purchase_invoice_details_table', 1),
-  ('2026_06_17_000006_add_project_fields_to_expenses_table', 1);
+  ('2026_06_17_000006_add_project_fields_to_expenses_table', 1),
+  ('2026_06_17_000007_extend_purchases_for_currency_and_deliverer', 1),
+  ('2026_06_17_000008_create_workers_table', 1),
+  ('2026_06_17_000009_create_labor_payments_table', 1);
 
 -- Admin user  (login: admin@jwani.com  /  password)
 INSERT INTO `users` (`name`, `email`, `password`, `is_admin`, `created_at`, `updated_at`) VALUES
