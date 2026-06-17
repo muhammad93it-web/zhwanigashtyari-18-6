@@ -22,22 +22,8 @@
             ],
         ],
         [
-            'title' => 'کڕین و فرۆشتن و کۆگا',
-            'show'  => $u->hasAccess('trading'),
-            'accent' => 'from-emerald-600 to-teal-600',
-            'icon' => '<path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/>',
-            'items' => [
-                ['label' => 'کڕینی مەواد', 'url' => route('materials.buy'), 'show' => true,
-                 'icon' => '<path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/>'],
-                ['label' => 'فرۆشتنی مەواد', 'url' => route('materials.sell'), 'show' => true,
-                 'icon' => '<path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4z" clip-rule="evenodd"/>'],
-                ['label' => 'کۆگا (مەوادەکان)', 'url' => route('materials.index'), 'show' => true,
-                 'icon' => '<path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/>'],
-            ],
-        ],
-        [
             'title' => 'پڕۆژە و کڕینی بیناسازی',
-            'show'  => $u->hasAccess('projects') || $u->hasAccess('suppliers'),
+            'show'  => $u->hasAccess('projects') || $u->hasAccess('suppliers') || $u->hasAccess('trading'),
             'accent' => 'from-emerald-700 to-green-700',
             'icon' => '<path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>',
             'items' => [
@@ -49,6 +35,8 @@
                  'icon' => '<path fill-rule="evenodd" d="M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm2.5 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm6.207.293a1 1 0 00-1.414 0l-6 6a1 1 0 101.414 1.414l6-6a1 1 0 000-1.414zM12.5 10a1.5 1.5 0 100 3 1.5 1.5 0 000-3z" clip-rule="evenodd"/>'],
                 ['label' => 'مێژووی کڕینەکان', 'url' => route('purchase-invoices.index'), 'show' => $u->hasAccess('suppliers'),
                  'icon' => '<path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>'],
+                ['label' => 'کۆگا (مەوادەکان)', 'url' => route('materials.index'), 'show' => $u->hasAccess('trading'),
+                 'icon' => '<path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/>'],
             ],
         ],
         [
