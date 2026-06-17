@@ -64,6 +64,11 @@ Route::middleware('auth')->group(function () {
 
     // ===== دابینکەران و کڕینی وەسڵ / Suppliers & Purchase Invoices =====
     Route::middleware('perm:suppliers')->group(function () {
+        Route::get('/statements', [SupplierController::class, 'statements'])->name('suppliers.statements');
+        Route::post('/statements/go', [SupplierController::class, 'statementGo'])->name('suppliers.statement-go');
+        Route::get('/suppliers/{supplier}/statement/print', [SupplierController::class, 'statementPrint'])->name('suppliers.statement-print');
+        Route::get('/suppliers/{supplier}/statement/excel', [SupplierController::class, 'statementExcel'])->name('suppliers.statement-excel');
+        Route::get('/suppliers/{supplier}/statement/word', [SupplierController::class, 'statementWord'])->name('suppliers.statement-word');
         Route::resource('suppliers', SupplierController::class);
         Route::get('/suppliers/{supplier}/pay', [SupplierPaymentController::class, 'create'])->name('suppliers.pay');
         Route::post('/suppliers/{supplier}/pay', [SupplierPaymentController::class, 'store'])->name('suppliers.pay.store');

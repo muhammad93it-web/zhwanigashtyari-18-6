@@ -37,6 +37,8 @@
                  'icon' => '<path fill-rule="evenodd" d="M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm2.5 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm6.207.293a1 1 0 00-1.414 0l-6 6a1 1 0 101.414 1.414l6-6a1 1 0 000-1.414zM12.5 10a1.5 1.5 0 100 3 1.5 1.5 0 000-3z" clip-rule="evenodd"/>'],
                 ['label' => 'مێژووی کڕینەکان', 'url' => route('purchase-invoices.index'), 'show' => $u->hasAccess('suppliers'),
                  'icon' => '<path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>'],
+                ['label' => 'کەشف حساب', 'url' => route('suppliers.statements'), 'show' => $u->hasAccess('suppliers'),
+                 'icon' => '<path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>'],
                 ['label' => 'کۆگا (مەوادەکان)', 'url' => route('materials.index'), 'show' => $u->hasAccess('trading'),
                  'icon' => '<path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/>'],
             ],
@@ -110,43 +112,42 @@
             ],
         ],
     ];
+
+    // هەموو بەشەکان وەک یەک ڕیز کارتی جوان (بەبێ پۆلێنکردن)
+    $items = [];
+    foreach ($groups as $g) {
+        if (! $g['show']) continue;
+        foreach ($g['items'] as $it) {
+            if ($it['show']) $items[] = $it;
+        }
+    }
+
+    // لۆگۆ وەک base64 (asset() لەسەر هۆستی cPanel ناکار دەکات)
+    $logoPath = public_path('images/logo.png');
+    $logoSrc = is_file($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : '';
 @endphp
 
-{{-- Welcome banner --}}
-<div class="card overflow-hidden mb-5 bg-gradient-to-l from-green-600 to-emerald-600 text-white">
-    <div class="px-5 py-4 sm:py-5">
-        <div class="text-lg sm:text-2xl font-extrabold leading-tight">بەخێربێیتەوە، {{ $u->name }}</div>
-        <div class="text-xs sm:text-sm text-white/85 mt-1">سیستەمی ژمێریاری ژوانی گەشتیاری — بەشێک هەڵبژێرە بۆ دەستپێکردن</div>
+{{-- ناونیشانی ناوەڕاست: لۆگۆ + هێڵ + ناوی سیستەم --}}
+<div class="card px-5 py-6 sm:py-7 mb-6">
+    <div class="flex items-center justify-center gap-4 sm:gap-6">
+        @if ($logoSrc)
+            <img src="{{ $logoSrc }}" alt="ژوانی گەشتیاری" class="w-16 h-16 sm:w-20 sm:h-20 object-contain flex-shrink-0">
+        @endif
+        <div class="w-px h-14 sm:h-16 bg-slate-200 flex-shrink-0"></div>
+        <h1 class="text-xl sm:text-3xl font-extrabold text-green-700 leading-snug text-center">سیستەمی ژمێریاری ژوانی گەشتیاری</h1>
     </div>
 </div>
 
-{{-- Section grid --}}
-<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
-    @foreach ($groups as $group)
-        @continue(! $group['show'])
-        @php $visibleItems = array_values(array_filter($group['items'], fn ($i) => $i['show'])); @endphp
-        @continue(count($visibleItems) === 0)
-        <div class="card overflow-hidden flex flex-col">
-            <div class="px-4 py-3 bg-gradient-to-l {{ $group['accent'] }} text-white flex items-center gap-2.5">
-                <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">{!! $group['icon'] !!}</svg>
-                <span class="font-bold text-sm">{{ $group['title'] }}</span>
-                <span class="ms-auto text-[11px] font-semibold bg-white/20 rounded-full px-2 py-0.5">{{ count($visibleItems) }}</span>
-            </div>
-            <div class="p-3 space-y-2">
-                @foreach ($visibleItems as $item)
-                    <a href="{{ $item['url'] }}"
-                       class="flex items-center gap-3 px-3 py-3 rounded-xl border border-slate-200 bg-white hover:bg-green-50 hover:border-green-300 active:scale-[0.98] transition-all duration-150">
-                        <span class="w-9 h-9 rounded-lg bg-green-100 text-green-600 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">{!! $item['icon'] !!}</svg>
-                        </span>
-                        <span class="text-sm font-semibold text-slate-700">{{ $item['label'] }}</span>
-                        <svg class="w-4 h-4 text-slate-300 ms-auto flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                        </svg>
-                    </a>
-                @endforeach
-            </div>
-        </div>
+{{-- ڕیزبەندی کارتەکان (بەبێ پۆلێن) --}}
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4">
+    @foreach ($items as $item)
+        <a href="{{ $item['url'] }}"
+           class="group bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 flex flex-col items-center text-center hover:shadow-md hover:border-green-300 hover:-translate-y-0.5 transition-all duration-150">
+            <span class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 text-white flex items-center justify-center shadow-sm mb-3 group-hover:scale-105 transition-transform duration-150">
+                <svg class="w-7 h-7 sm:w-8 sm:h-8" fill="currentColor" viewBox="0 0 20 20">{!! $item['icon'] !!}</svg>
+            </span>
+            <span class="text-xs sm:text-sm font-bold text-slate-700 leading-tight">{{ $item['label'] }}</span>
+        </a>
     @endforeach
 </div>
 @endsection

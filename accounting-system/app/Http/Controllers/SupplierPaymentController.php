@@ -19,25 +19,30 @@ class SupplierPaymentController extends Controller
     {
         $data = $request->validate([
             'amount'      => 'required|numeric|min:0.01',
+            'currency'    => 'required|in:IQD,USD',
             'date'        => 'required|date',
             'description' => 'nullable|string|max:500',
         ]);
 
         DB::transaction(function () use ($supplier, $data) {
             $locked = Supplier::lockForUpdate()->find($supplier->id);
-            $newBalance = (float) $locked->balance - (float) $data['amount'];
+            $field = $data['currency'] === 'USD' ? 'balance_usd' : 'balance_iqd';
+            $newBalance = round((float) $locked->$field - (float) $data['amount'], 2);
 
             SupplierTransaction::create([
                 'supplier_id'   => $locked->id,
                 'user_id'       => Auth::id(),
                 'type'          => 'payment',
+                'currency'      => $data['currency'],
                 'amount'        => $data['amount'],
                 'balance_after' => $newBalance,
                 'date'          => $data['date'],
                 'description'   => $data['description'] ?? 'پارەدان بۆ دابینکەر',
             ]);
 
-            $locked->balance = $newBalance;
+            $locked->$field = $newBalance;
+            // Keep legacy single-currency balance = IQD balance for backward compat.
+            $locked->balance = $locked->balance_iqd;
             $locked->save();
         });
 

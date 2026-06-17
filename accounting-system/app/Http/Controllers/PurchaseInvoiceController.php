@@ -16,9 +16,8 @@ class PurchaseInvoiceController extends Controller
 {
     public function index(Request $request)
     {
-        // Each user only sees their own purchase history.
+        // Shared company books: everyone sees all purchase invoices.
         $query = PurchaseInvoice::query()
-            ->where('user_id', Auth::id())
             ->with(['supplier', 'user', 'project'])
             ->latest('date')
             ->latest('id');
@@ -106,7 +105,6 @@ class PurchaseInvoiceController extends Controller
 
     public function show(PurchaseInvoice $purchaseInvoice)
     {
-        abort_unless($purchaseInvoice->user_id === Auth::id(), 403);
 
         $purchaseInvoice->load(['supplier', 'user', 'project', 'details.material', 'details.project']);
 
@@ -115,7 +113,6 @@ class PurchaseInvoiceController extends Controller
 
     public function edit(PurchaseInvoice $purchaseInvoice)
     {
-        abort_unless($purchaseInvoice->user_id === Auth::id(), 403);
 
         $purchaseInvoice->load(['details']);
 
@@ -124,7 +121,6 @@ class PurchaseInvoiceController extends Controller
 
     public function update(Request $request, PurchaseInvoice $purchaseInvoice)
     {
-        abort_unless($purchaseInvoice->user_id === Auth::id(), 403);
 
         $data = $this->validateInvoice($request);
 
@@ -191,7 +187,6 @@ class PurchaseInvoiceController extends Controller
 
     public function destroy(PurchaseInvoice $purchaseInvoice)
     {
-        abort_unless($purchaseInvoice->user_id === Auth::id(), 403);
 
         DB::transaction(function () use ($purchaseInvoice) {
             $invoice = PurchaseInvoice::lockForUpdate()->find($purchaseInvoice->id);
@@ -211,7 +206,6 @@ class PurchaseInvoiceController extends Controller
 
     public function print(PurchaseInvoice $purchaseInvoice)
     {
-        abort_unless($purchaseInvoice->user_id === Auth::id(), 403);
 
         $purchaseInvoice->load(['supplier', 'user', 'project', 'details.material', 'details.project']);
 
@@ -223,7 +217,6 @@ class PurchaseInvoiceController extends Controller
 
     public function exportExcel(PurchaseInvoice $purchaseInvoice)
     {
-        abort_unless($purchaseInvoice->user_id === Auth::id(), 403);
 
         $purchaseInvoice->load(['supplier', 'user', 'project', 'details.material', 'details.project']);
 
@@ -240,7 +233,6 @@ class PurchaseInvoiceController extends Controller
 
     public function exportWord(PurchaseInvoice $purchaseInvoice)
     {
-        abort_unless($purchaseInvoice->user_id === Auth::id(), 403);
 
         $purchaseInvoice->load(['supplier', 'user', 'project', 'details.material', 'details.project']);
 

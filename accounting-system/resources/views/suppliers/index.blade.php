@@ -12,9 +12,15 @@
     <a href="{{ route('suppliers.create') }}" class="btn-primary">+ دابینکەری نوێ</a>
 </div>
 
-<div class="card p-4 mb-4 flex items-center justify-between text-sm">
-    <span class="text-slate-500">کۆی قەرزی سەرمان بۆ دابینکەران</span>
-    <span class="font-bold text-red-600 text-lg">{{ $num($totalBalance) }}</span>
+<div class="grid grid-cols-2 gap-4 mb-4">
+    <div class="stat-card">
+        <div class="text-xs text-slate-400">کۆی قەرزمان (دینار)</div>
+        <div class="text-lg font-extrabold {{ $totalIqd > 0 ? 'text-red-600' : 'text-green-700' }}">{{ $num($totalIqd) }} <span class="text-xs text-slate-400">د.ع</span></div>
+    </div>
+    <div class="stat-card">
+        <div class="text-xs text-slate-400">کۆی قەرزمان (دۆلار)</div>
+        <div class="text-lg font-extrabold {{ $totalUsd > 0 ? 'text-red-600' : 'text-green-700' }}">{{ $num($totalUsd) }} <span class="text-xs text-slate-400">$</span></div>
+    </div>
 </div>
 
 <form method="GET" action="{{ route('suppliers.index') }}" class="card p-4 mb-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -35,7 +41,8 @@
                 <tr class="text-right text-xs text-slate-500 border-b border-slate-200">
                     <th class="px-4 py-3 font-semibold">ناو</th>
                     <th class="px-4 py-3 font-semibold">مۆبایل</th>
-                    <th class="px-4 py-3 font-semibold">باڵانس (قەرز)</th>
+                    <th class="px-4 py-3 font-semibold">قەرز (دینار)</th>
+                    <th class="px-4 py-3 font-semibold">قەرز (دۆلار)</th>
                     <th class="px-4 py-3 font-semibold">دۆخ</th>
                     <th class="px-4 py-3 font-semibold">کردارەکان</th>
                 </tr>
@@ -46,7 +53,10 @@
                         <td class="px-4 py-3 font-semibold text-slate-800">{{ $supplier->name }}</td>
                         <td class="px-4 py-3 text-slate-600">{{ $supplier->phone ?: '—' }}</td>
                         <td class="px-4 py-3">
-                            <span class="font-bold {{ (float)$supplier->balance > 0 ? 'text-red-600' : 'text-green-700' }}">{{ $num($supplier->balance) }}</span>
+                            <span class="font-bold {{ (float)$supplier->balance_iqd > 0 ? 'text-red-600' : 'text-green-700' }}">{{ $num($supplier->balance_iqd) }} <span class="text-[10px] text-slate-400">د.ع</span></span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <span class="font-bold {{ (float)$supplier->balance_usd > 0 ? 'text-red-600' : 'text-green-700' }}">{{ $num($supplier->balance_usd) }} <span class="text-[10px] text-slate-400">$</span></span>
                         </td>
                         <td class="px-4 py-3">
                             @if($supplier->is_active)<span class="badge-green">چالاک</span>@else<span class="badge-slate">ناچالاک</span>@endif
@@ -65,7 +75,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="5" class="px-4 py-10 text-center text-slate-400">هیچ دابینکەرێک نییە.</td></tr>
+                    <tr><td colspan="6" class="px-4 py-10 text-center text-slate-400">هیچ دابینکەرێک نییە.</td></tr>
                 @endforelse
             </tbody>
         </table>

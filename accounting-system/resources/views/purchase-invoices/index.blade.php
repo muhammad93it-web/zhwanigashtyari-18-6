@@ -2,7 +2,7 @@
 
 @section('title', 'مێژووی کڕینەکان')
 @section('page-title', 'مێژووی کڕینەکان')
-@section('page-subtitle', 'وەسڵەکانی کڕینی خۆت')
+@section('page-subtitle', 'هەموو وەسڵەکانی کڕین')
 
 @section('content')
 @php $num = fn($v) => number_format((float) $v, 0); @endphp
@@ -83,9 +83,12 @@
                             <span class="{{ (float)$inv->remaining_usd > 0 ? 'text-red-600 font-semibold' : 'text-slate-400' }}">{{ $num($inv->remaining_usd) }} $</span>
                         </td>
                         <td class="px-4 py-3">
-                            <div class="flex items-center gap-1.5">
+                            <div class="flex items-center gap-1.5 flex-wrap">
                                 <a href="{{ route('purchase-invoices.show', $inv) }}" class="btn-info !px-3 !py-1.5">بینین</a>
                                 <a href="{{ route('purchase-invoices.edit', $inv) }}" class="btn-warning !px-3 !py-1.5">دەستکاری</a>
+                                <a href="{{ route('purchase-invoices.print', $inv) }}" target="_blank" class="btn-outline !px-3 !py-1.5">چاپ</a>
+                                <a href="{{ route('purchase-invoices.export-excel', $inv) }}" class="btn-primary !px-3 !py-1.5">Excel</a>
+                                <a href="{{ route('purchase-invoices.export-word', $inv) }}" class="btn-primary !px-3 !py-1.5">Word</a>
                                 <form method="POST" action="{{ route('purchase-invoices.destroy', $inv) }}" onsubmit="return confirm('سڕینەوەی وەسڵ کۆگا و باڵانس ڕاستدەکاتەوە. دڵنیایت؟')">
                                     @csrf
                                     @method('DELETE')

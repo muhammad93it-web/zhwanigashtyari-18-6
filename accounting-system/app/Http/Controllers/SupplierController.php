@@ -18,9 +18,10 @@ class SupplierController extends Controller
         }
 
         $suppliers = $query->paginate(20)->withQueryString();
-        $totalBalance = (float) Supplier::sum('balance');
+        $totalIqd = (float) Supplier::sum('balance_iqd');
+        $totalUsd = (float) Supplier::sum('balance_usd');
 
-        return view('suppliers.index', compact('suppliers', 'totalBalance'));
+        return view('suppliers.index', compact('suppliers', 'totalIqd', 'totalUsd'));
     }
 
     public function create()
@@ -52,7 +53,31 @@ class SupplierController extends Controller
             ->latest('id')
             ->paginate(25);
 
-        return view('suppliers.show', compact('supplier', 'transactions'));
+        $summary = $this->summary($supplier);
+
+        return view('suppliers.show', compact('supplier', 'transactions', 'summary'));
+    }
+
+    /** Per-currency totals: how much purchased, paid, and the remaining balance. */
+    private function summary(Supplier $supplier): array
+    {
+        $rows = $supplier->transactions()
+            ->selectRaw("currency, type, SUM(amount) total")
+            ->groupBy('currency', 'type')
+            ->get();
+
+        $out = [
+            'IQD' => ['purchase' => 0.0, 'payment' => 0.0, 'balance' => (float) $supplier->balance_iqd],
+            'USD' => ['purchase' => 0.0, 'payment' => 0.0, 'balance' => (float) $supplier->balance_usd],
+        ];
+
+        foreach ($rows as $r) {
+            $cur = $r->currency === 'USD' ? 'USD' : 'IQD';
+            $type = $r->type === 'payment' ? 'payment' : 'purchase';
+            $out[$cur][$type] += (float) $r->total;
+        }
+
+        return $out;
     }
 
     public function edit(Supplier $supplier)
@@ -84,5 +109,85 @@ class SupplierController extends Controller
         $supplier->delete();
 
         return redirect()->route('suppliers.index')->with('success', 'سڕایەوە.');
+    }
+
+    /** کەشف حیساب: لیستی کەسەکان + هەڵبژاردنی ناو بۆ بینینی کەشف حساب. */
+    public function statements(Request $request)
+    {
+        $query = Supplier::query()->orderBy('name');
+
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $query->where(fn($q) => $q->where('name', 'like', "%{$s}%")
+                ->orWhere('phone', 'like', "%{$s}%"));
+        }
+
+        $suppliers = $query->paginate(30)->withQueryString();
+        $allSuppliers = Supplier::orderBy('name')->get(['id', 'name']);
+
+        $totals = [
+            'IQD' => (float) Supplier::sum('balance_iqd'),
+            'USD' => (float) Supplier::sum('balance_usd'),
+        ];
+
+        return view('suppliers.statements', compact('suppliers', 'allSuppliers', 'totals'));
+    }
+
+    /** ڕێکردنی هەڵبژاردنی ناو لە فۆڕمی کەشف حساب. */
+    public function statementGo(Request $request)
+    {
+        $request->validate(['supplier_id' => 'required|exists:suppliers,id']);
+
+        return redirect()->route('suppliers.show', $request->supplier_id);
+    }
+
+    public function statementPrint(Supplier $supplier)
+    {
+        return view('suppliers.statement-print', $this->statementData($supplier) + ['logo' => $this->logoDataUri()]);
+    }
+
+    public function statementExcel(Supplier $supplier)
+    {
+        $html = view('suppliers.statement-excel', $this->statementData($supplier))->render();
+
+        return response($html, 200, [
+            'Content-Type'        => 'application/vnd.ms-excel; charset=utf-8',
+            'Content-Disposition' => 'attachment; filename="statement-' . $supplier->id . '.xls"',
+        ]);
+    }
+
+    public function statementWord(Supplier $supplier)
+    {
+        $html = view('suppliers.statement-word', $this->statementData($supplier))->render();
+
+        return response($html, 200, [
+            'Content-Type'        => 'application/msword; charset=utf-8',
+            'Content-Disposition' => 'attachment; filename="statement-' . $supplier->id . '.doc"',
+        ]);
+    }
+
+    private function statementData(Supplier $supplier): array
+    {
+        $transactions = $supplier->transactions()
+            ->with('user')
+            ->orderBy('date')
+            ->orderBy('id')
+            ->get();
+
+        return [
+            'supplier'     => $supplier,
+            'transactions' => $transactions,
+            'summary'      => $this->summary($supplier),
+        ];
+    }
+
+    private function logoDataUri(): string
+    {
+        $path = public_path('images/logo.png');
+        if (is_file($path)) {
+            return 'data:image/png;base64,' . base64_encode((string) file_get_contents($path));
+        }
+
+        return '';
     }
 }
