@@ -165,7 +165,9 @@ CREATE TABLE IF NOT EXISTS `incomes` (
 CREATE TABLE IF NOT EXISTS `expenses` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `user_id` bigint unsigned DEFAULT NULL,
+  `project_id` bigint unsigned DEFAULT NULL,
   `payee` varchar(255) NOT NULL,
+  `expense_type` varchar(255) DEFAULT NULL,
   `category` varchar(255) DEFAULT NULL,
   `currency` enum('USD','IQD') NOT NULL DEFAULT 'IQD',
   `amount` decimal(15,2) NOT NULL,
@@ -173,6 +175,7 @@ CREATE TABLE IF NOT EXISTS `expenses` (
   `amount_iqd` decimal(15,2) NOT NULL,
   `exchange_rate_usd_to_iqd` decimal(12,4) NOT NULL,
   `description` varchar(255) DEFAULT NULL,
+  `reason_description` text,
   `reference_number` varchar(50) NOT NULL,
   `expense_date` date NOT NULL,
   `notes` text,
@@ -182,6 +185,7 @@ CREATE TABLE IF NOT EXISTS `expenses` (
   UNIQUE KEY `expenses_reference_number_unique` (`reference_number`),
   KEY `expenses_expense_date_index` (`expense_date`),
   KEY `expenses_user_id_foreign` (`user_id`),
+  KEY `expenses_project_id_foreign` (`project_id`),
   CONSTRAINT `expenses_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -335,6 +339,116 @@ CREATE TABLE IF NOT EXISTS `documents` (
   CONSTRAINT `documents_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- ---------------------------------------------------------------------
+-- projects (پڕۆژە/بینا)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `projects` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `client_id` bigint unsigned DEFAULT NULL,
+  `location` varchar(255) DEFAULT NULL,
+  `budget` decimal(15,2) DEFAULT NULL,
+  `status` varchar(255) NOT NULL DEFAULT 'active',
+  `notes` text,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `projects_name_index` (`name`),
+  KEY `projects_is_active_index` (`is_active`),
+  KEY `projects_client_id_foreign` (`client_id`),
+  CONSTRAINT `projects_client_id_foreign` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- expenses -> projects FK (added here, after `projects` exists, to avoid creation-order issues)
+ALTER TABLE `expenses`
+  ADD CONSTRAINT `expenses_project_id_foreign` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE SET NULL;
+
+-- ---------------------------------------------------------------------
+-- suppliers (دابینکەرەکان)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `suppliers` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `phone` varchar(255) DEFAULT NULL,
+  `balance` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `notes` text,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `suppliers_name_index` (`name`),
+  KEY `suppliers_is_active_index` (`is_active`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
+-- supplier_transactions (کشف حساب / لێژەری دابینکەر)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `supplier_transactions` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `supplier_id` bigint unsigned NOT NULL,
+  `user_id` bigint unsigned DEFAULT NULL,
+  `type` enum('purchase','payment') NOT NULL,
+  `amount` decimal(15,2) NOT NULL,
+  `balance_after` decimal(15,2) NOT NULL,
+  `date` date NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `supplier_transactions_date_index` (`date`),
+  KEY `supplier_transactions_supplier_id_foreign` (`supplier_id`),
+  KEY `supplier_transactions_user_id_foreign` (`user_id`),
+  CONSTRAINT `supplier_transactions_supplier_id_foreign` FOREIGN KEY (`supplier_id`) REFERENCES `suppliers` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `supplier_transactions_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
+-- purchase_invoices (وەسڵی کڕین — سەرەکی)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `purchase_invoices` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `supplier_id` bigint unsigned NOT NULL,
+  `user_id` bigint unsigned NOT NULL,
+  `total_amount` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `paid_amount` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `remaining_amount` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `date` date NOT NULL,
+  `notes` text,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `purchase_invoices_date_index` (`date`),
+  KEY `purchase_invoices_supplier_id_foreign` (`supplier_id`),
+  KEY `purchase_invoices_user_id_foreign` (`user_id`),
+  CONSTRAINT `purchase_invoices_supplier_id_foreign` FOREIGN KEY (`supplier_id`) REFERENCES `suppliers` (`id`),
+  CONSTRAINT `purchase_invoices_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
+-- purchase_invoice_details (هێڵەکانی وەسڵی کڕین)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `purchase_invoice_details` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `purchase_invoice_id` bigint unsigned NOT NULL,
+  `material_id` bigint unsigned DEFAULT NULL,
+  `custom_type` varchar(255) DEFAULT NULL,
+  `unit` varchar(255) DEFAULT NULL,
+  `quantity` decimal(15,3) NOT NULL DEFAULT '0.000',
+  `unit_price` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `line_total` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `project_id` bigint unsigned DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `purchase_invoice_details_purchase_invoice_id_foreign` (`purchase_invoice_id`),
+  KEY `purchase_invoice_details_material_id_foreign` (`material_id`),
+  KEY `purchase_invoice_details_project_id_foreign` (`project_id`),
+  CONSTRAINT `purchase_invoice_details_purchase_invoice_id_foreign` FOREIGN KEY (`purchase_invoice_id`) REFERENCES `purchase_invoices` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `purchase_invoice_details_material_id_foreign` FOREIGN KEY (`material_id`) REFERENCES `materials` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `purchase_invoice_details_project_id_foreign` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- =====================================================================
 --  INITIAL DATA
 -- =====================================================================
@@ -353,7 +467,13 @@ INSERT INTO `migrations` (`migration`, `batch`) VALUES
   ('2024_01_01_000010_create_contractors_table', 1),
   ('2024_01_01_000011_create_contractor_payments_table', 1),
   ('2024_01_01_000012_create_documents_table', 1),
-  ('2024_01_01_000013_add_role_to_users_table', 1);
+  ('2024_01_01_000013_add_role_to_users_table', 1),
+  ('2026_06_17_000001_create_projects_table', 1),
+  ('2026_06_17_000002_create_suppliers_table', 1),
+  ('2026_06_17_000003_create_supplier_transactions_table', 1),
+  ('2026_06_17_000004_create_purchase_invoices_table', 1),
+  ('2026_06_17_000005_create_purchase_invoice_details_table', 1),
+  ('2026_06_17_000006_add_project_fields_to_expenses_table', 1);
 
 -- Admin user  (login: admin@jwani.com  /  password)
 INSERT INTO `users` (`name`, `email`, `password`, `is_admin`, `created_at`, `updated_at`) VALUES

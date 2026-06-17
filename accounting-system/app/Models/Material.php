@@ -21,6 +21,11 @@ class Material extends Model
         return $this->hasMany(MaterialMovement::class);
     }
 
+    public function purchaseDetails()
+    {
+        return $this->hasMany(PurchaseInvoiceDetail::class);
+    }
+
     public function getIsLowStockAttribute(): bool
     {
         return $this->min_stock !== null && (float) $this->current_stock <= (float) $this->min_stock;

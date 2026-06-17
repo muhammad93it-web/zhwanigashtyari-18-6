@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Expense extends Model
 {
     protected $fillable = [
-        'user_id', 'payee', 'category', 'currency', 'amount',
+        'user_id', 'project_id', 'payee', 'expense_type', 'category', 'currency', 'amount',
         'amount_usd', 'amount_iqd', 'exchange_rate_usd_to_iqd',
-        'description', 'reference_number', 'expense_date', 'notes',
+        'description', 'reason_description', 'reference_number', 'expense_date', 'notes',
     ];
 
     protected $casts = [
@@ -23,6 +23,11 @@ class Expense extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
     }
 
     protected static function boot()
