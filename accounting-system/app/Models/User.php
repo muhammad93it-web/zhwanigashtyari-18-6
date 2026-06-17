@@ -15,6 +15,8 @@ class User extends Authenticatable
     public const MODULES = [
         'finance'        => 'دارایی (وەرگرتن، خەرجی، قەرز)',
         'trading'        => 'کڕین و فرۆشتن و کۆگا',
+        'projects'       => 'پڕۆژەکان و تێچوون',
+        'suppliers'      => 'دابینکەران و کڕینی وەسڵ',
         'contractors'    => 'وەستا و بەڵێندەرایەتی',
         'reports'        => 'ڕاپۆرتەکان',
         'documents'      => 'نووسراوەکان',

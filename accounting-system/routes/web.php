@@ -13,7 +13,11 @@ use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\MaterialMovementController;
 use App\Http\Controllers\PrintCenterController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\PurchaseInvoiceController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\SupplierPaymentController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -49,6 +53,19 @@ Route::middleware('auth')->group(function () {
         Route::get('/materials-sell', [MaterialMovementController::class, 'create'])->defaults('type', 'sale')->name('materials.sell');
         Route::post('/material-movements', [MaterialMovementController::class, 'store'])->name('movements.store');
         Route::delete('/material-movements/{movement}', [MaterialMovementController::class, 'destroy'])->name('movements.destroy');
+    });
+
+    // ===== پڕۆژەکان / Projects =====
+    Route::middleware('perm:projects')->group(function () {
+        Route::resource('projects', ProjectController::class);
+    });
+
+    // ===== دابینکەران و کڕینی وەسڵ / Suppliers & Purchase Invoices =====
+    Route::middleware('perm:suppliers')->group(function () {
+        Route::resource('suppliers', SupplierController::class);
+        Route::get('/suppliers/{supplier}/pay', [SupplierPaymentController::class, 'create'])->name('suppliers.pay');
+        Route::post('/suppliers/{supplier}/pay', [SupplierPaymentController::class, 'store'])->name('suppliers.pay.store');
+        Route::resource('purchase-invoices', PurchaseInvoiceController::class)->only(['index', 'create', 'store', 'show', 'destroy']);
     });
 
     // ===== وەستا / Contractors =====

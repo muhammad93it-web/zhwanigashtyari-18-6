@@ -26,6 +26,37 @@ unset($__errorArgs, $__bag); ?>
         </div>
 
         <div>
+            <label class="label">پڕۆژە (ئیختیاری)</label>
+            <select name="project_id" class="input-field">
+                <option value="">— بێ پڕۆژە —</option>
+                <?php $__currentLoopData = $projects; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($p->id); ?>" <?php if(old('project_id')==$p->id): echo 'selected'; endif; ?>><?php echo e($p->name); ?></option>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </select>
+            <?php $__errorArgs = ['project_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <p class="text-red-500 text-xs mt-1"><?php echo e($message); ?></p> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+        </div>
+
+        <div>
+            <label class="label">جۆری خەرجی</label>
+            <input type="text" name="expense_type" value="<?php echo e(old('expense_type')); ?>" class="input-field" placeholder="نموونە: کرێی کرێکار، گواستنەوە">
+            <?php $__errorArgs = ['expense_type'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <p class="text-red-500 text-xs mt-1"><?php echo e($message); ?></p> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+        </div>
+
+        <div>
             <label class="label">جۆر</label>
             <input type="text" name="category" value="<?php echo e(old('category')); ?>" class="input-field">
             <?php $__errorArgs = ['category'];
@@ -85,6 +116,19 @@ unset($__errorArgs, $__bag); ?>
             <label class="label">وەسف</label>
             <textarea name="description" rows="2" class="input-field"><?php echo e(old('description')); ?></textarea>
             <?php $__errorArgs = ['description'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <p class="text-red-500 text-xs mt-1"><?php echo e($message); ?></p> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+        </div>
+
+        <div class="sm:col-span-2">
+            <label class="label">هۆکاری خەرجکردن</label>
+            <textarea name="reason_description" rows="2" class="input-field" placeholder="بۆچی ئەم پارەیە خەرجکرا؟"><?php echo e(old('reason_description')); ?></textarea>
+            <?php $__errorArgs = ['reason_description'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }

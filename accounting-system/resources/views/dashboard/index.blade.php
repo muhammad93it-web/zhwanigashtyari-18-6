@@ -38,6 +38,22 @@
             ],
         ],
         [
+            'title' => 'پڕۆژە و کڕینی بیناسازی',
+            'show'  => $u->hasAccess('projects') || $u->hasAccess('suppliers'),
+            'accent' => 'from-emerald-700 to-green-700',
+            'icon' => '<path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>',
+            'items' => [
+                ['label' => 'پڕۆژەکان', 'url' => route('projects.index'), 'show' => $u->hasAccess('projects'),
+                 'icon' => '<path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>'],
+                ['label' => 'دابینکەران', 'url' => route('suppliers.index'), 'show' => $u->hasAccess('suppliers'),
+                 'icon' => '<path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>'],
+                ['label' => 'کڕینی مەواد بە وەسڵ', 'url' => route('purchase-invoices.create'), 'show' => $u->hasAccess('suppliers'),
+                 'icon' => '<path fill-rule="evenodd" d="M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm2.5 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm6.207.293a1 1 0 00-1.414 0l-6 6a1 1 0 101.414 1.414l6-6a1 1 0 000-1.414zM12.5 10a1.5 1.5 0 100 3 1.5 1.5 0 000-3z" clip-rule="evenodd"/>'],
+                ['label' => 'مێژووی کڕینەکان', 'url' => route('purchase-invoices.index'), 'show' => $u->hasAccess('suppliers'),
+                 'icon' => '<path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>'],
+            ],
+        ],
+        [
             'title' => 'وەستا و بەڵێندەرایەتی',
             'show'  => $u->hasAccess('contractors'),
             'accent' => 'from-teal-600 to-teal-700',

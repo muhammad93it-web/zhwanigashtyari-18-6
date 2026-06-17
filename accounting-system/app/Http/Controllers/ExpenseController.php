@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ExchangeRate;
 use App\Models\Expense;
+use App\Models\Project;
 use App\Traits\CalculatesCurrency;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -37,19 +38,25 @@ class ExpenseController extends Controller
 
     public function create()
     {
-        return view('expenses.create', ['currentRate' => ExchangeRate::currentRate()]);
+        return view('expenses.create', [
+            'currentRate' => ExchangeRate::currentRate(),
+            'projects'    => Project::where('is_active', true)->orderBy('name')->get(),
+        ]);
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
-            'payee'        => 'required|string|max:255',
-            'category'     => 'nullable|string|max:255',
-            'currency'     => 'required|in:USD,IQD',
-            'amount'       => 'required|numeric|min:0.01',
-            'description'  => 'nullable|string|max:255',
-            'expense_date' => 'required|date',
-            'notes'        => 'nullable|string|max:1000',
+            'payee'              => 'required|string|max:255',
+            'project_id'         => 'nullable|exists:projects,id',
+            'category'           => 'nullable|string|max:255',
+            'expense_type'       => 'nullable|string|max:255',
+            'currency'           => 'required|in:USD,IQD',
+            'amount'             => 'required|numeric|min:0.01',
+            'description'        => 'nullable|string|max:255',
+            'reason_description' => 'nullable|string|max:1000',
+            'expense_date'       => 'required|date',
+            'notes'              => 'nullable|string|max:1000',
         ]);
 
         $rate = ExchangeRate::currentRate();
@@ -68,19 +75,26 @@ class ExpenseController extends Controller
 
     public function edit(Expense $expense)
     {
-        return view('expenses.edit', ['expense' => $expense, 'currentRate' => ExchangeRate::currentRate()]);
+        return view('expenses.edit', [
+            'expense'     => $expense,
+            'currentRate' => ExchangeRate::currentRate(),
+            'projects'    => Project::where('is_active', true)->orderBy('name')->get(),
+        ]);
     }
 
     public function update(Request $request, Expense $expense)
     {
         $data = $request->validate([
-            'payee'        => 'required|string|max:255',
-            'category'     => 'nullable|string|max:255',
-            'currency'     => 'required|in:USD,IQD',
-            'amount'       => 'required|numeric|min:0.01',
-            'description'  => 'nullable|string|max:255',
-            'expense_date' => 'required|date',
-            'notes'        => 'nullable|string|max:1000',
+            'payee'              => 'required|string|max:255',
+            'project_id'         => 'nullable|exists:projects,id',
+            'category'           => 'nullable|string|max:255',
+            'expense_type'       => 'nullable|string|max:255',
+            'currency'           => 'required|in:USD,IQD',
+            'amount'             => 'required|numeric|min:0.01',
+            'description'        => 'nullable|string|max:255',
+            'reason_description' => 'nullable|string|max:1000',
+            'expense_date'       => 'required|date',
+            'notes'              => 'nullable|string|max:1000',
         ]);
 
         $rate = (float) $expense->exchange_rate_usd_to_iqd;

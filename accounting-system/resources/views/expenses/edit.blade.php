@@ -22,6 +22,23 @@
         </div>
 
         <div>
+            <label class="label">پڕۆژە (ئیختیاری)</label>
+            <select name="project_id" class="input-field">
+                <option value="">— بێ پڕۆژە —</option>
+                @foreach($projects as $p)
+                    <option value="{{ $p->id }}" @selected(old('project_id', $expense->project_id)==$p->id)>{{ $p->name }}</option>
+                @endforeach
+            </select>
+            @error('project_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+        </div>
+
+        <div>
+            <label class="label">جۆری خەرجی</label>
+            <input type="text" name="expense_type" value="{{ old('expense_type', $expense->expense_type) }}" class="input-field" placeholder="نموونە: کرێی کرێکار، گواستنەوە">
+            @error('expense_type') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+        </div>
+
+        <div>
             <label class="label">جۆر</label>
             <input type="text" name="category" value="{{ old('category', $expense->category) }}" class="input-field">
             @error('category') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
@@ -53,6 +70,12 @@
             <label class="label">وەسف</label>
             <textarea name="description" rows="2" class="input-field">{{ old('description', $expense->description) }}</textarea>
             @error('description') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+        </div>
+
+        <div class="sm:col-span-2">
+            <label class="label">هۆکاری خەرجکردن</label>
+            <textarea name="reason_description" rows="2" class="input-field" placeholder="بۆچی ئەم پارەیە خەرجکرا؟">{{ old('reason_description', $expense->reason_description) }}</textarea>
+            @error('reason_description') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
         </div>
 
         <div class="sm:col-span-2">
