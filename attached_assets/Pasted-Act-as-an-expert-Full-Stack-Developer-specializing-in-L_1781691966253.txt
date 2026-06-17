@@ -1,0 +1,30 @@
+Act as an expert Full-Stack Developer specializing in Laravel 11, PHP 8.2, and MySQL. 
+
+I need to upgrade my existing accounting system into a Comprehensive Construction & Contractor Project Costing System. The frontend uses Blade and Tailwind CSS (RTL). Do not use any npm build steps; provide plain JS/Blade suitable for a shared hosting cPanel environment. 
+
+Please generate the necessary Migrations, Models, Controllers, and outline the Blade views for the following features. Ensure all database changes are non-destructive.
+
+PHASE 1: Suppliers & Statement of Account (Ledger)
+1. Create a `Supplier` model and migration (fields: name, phone, balance).
+2. Create a `SupplierTransaction` model to act as the Statement of Account (fields: supplier_id, type [purchase, payment], amount, balance_after, date, description). 
+
+PHASE 2: Dynamic Multi-Line Purchases & History
+1. Simplify the `materials` table to mostly just need a `name` column.
+2. Implement a Master-Detail purchase architecture:
+   - `PurchaseInvoice` (Master): fields -> supplier_id, user_id (tied to auth()->id() automatically), total_amount, paid_amount, remaining_amount, date.
+   - `PurchaseInvoiceDetail` (Lines): fields -> purchase_invoice_id, material_id, custom_type (string, manually entered e.g. "Tasluja"), unit (string, manually entered e.g. "Ton"), quantity, unit_price, line_total, project_id (nullable, required only if material is a direct expense).
+3. Purchase Logic:
+   - When saving, update inventory (if applicable) and update the Supplier's balance via `SupplierTransaction` for any unpaid amount.
+   - Wrap the entire save process in a `DB::transaction`.
+4. Purchase History: Create a view/method to list all `PurchaseInvoice`s. It MUST be filtered by the currently logged-in user (`where('user_id', auth()->id())`) so they only see their own history.
+
+PHASE 3: Frontend Dynamic Invoice Form (Vanilla JS)
+1. Write the Blade/JS logic for a dynamic invoice form where the user can click "+ Add Line" to add multiple materials to the same invoice.
+2. Include auto-calculation JS: `Quantity * Unit Price = Line Total`, and sum all line totals to automatically update the `Grand Total` input.
+
+PHASE 4: Comprehensive General Expenses Module
+1. Update or create an `Expense` model and migration.
+2. Fields required: `user_id` (automatically tied to auth()->id()), `project_id` (nullable, to link to a specific building if needed), `expense_type` (string, manually typed by the user, e.g., "Taxi", "Contractor Payment", "Food"), `reason_description` (text), `amount` (decimal), and `expense_date`.
+3. Provide the Controller methods to store this expense and a Blade view layout for the General Expenses log.
+
+Please provide the code sequentially. Start with the Models and Migrations for all phases. Let me know when you are ready for the Controllers.
