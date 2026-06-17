@@ -62,6 +62,14 @@ export default defineConfig({
     fs: {
       strict: true,
     },
+    // Dev-only: forward the Jwani accounting app (PHP/Laravel) through the
+    // preview proxy so it can be viewed in the Replit preview pane at /jwani.
+    proxy: {
+      "/jwani": {
+        target: "http://127.0.0.1:5000",
+        changeOrigin: true,
+      },
+    },
   },
   preview: {
     port,

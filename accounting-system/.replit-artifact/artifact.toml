@@ -1,0 +1,13 @@
+kind = "web"
+previewPath = "/jwani/"
+title = "ژوانی گەشتیاری — سیستەمی ژمێریاری"
+version = "1.0.0"
+id = "jwani-accounting-preview"
+
+[[services]]
+localPort = 5000
+name = "Jwani App"
+paths = ["/jwani"]
+
+[services.development]
+run = "PREVIEW_PREFIX=/jwani PREVIEW_BASE_URL=https://$REPLIT_DEV_DOMAIN/jwani php -S 0.0.0.0:5000 server.php"

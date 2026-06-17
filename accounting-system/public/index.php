@@ -7,6 +7,28 @@ define('LARAVEL_START', microtime(true));
 
 /*
 |--------------------------------------------------------------------------
+| Replit Preview Path Prefix (development preview only)
+|--------------------------------------------------------------------------
+| When this app is served behind the Replit reverse proxy under a path
+| prefix (e.g. "/jwani"), strip that prefix from the request URI so the
+| framework routes match normally. This is gated on the PREVIEW_PREFIX
+| environment variable, which is ONLY set by the Replit preview workflow.
+| On the live cPanel host it is never set, so this block is a no-op and
+| the production site is completely unaffected.
+*/
+
+$previewPrefix = getenv('PREVIEW_PREFIX');
+if (is_string($previewPrefix) && $previewPrefix !== '' && getenv('REPL_ID')) {
+    $previewPrefix = '/' . trim($previewPrefix, '/');
+    $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
+    if ($requestUri === $previewPrefix || strpos($requestUri, $previewPrefix . '/') === 0) {
+        $stripped = substr($requestUri, strlen($previewPrefix));
+        $_SERVER['REQUEST_URI'] = ($stripped === false || $stripped === '') ? '/' : $stripped;
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
 | Check If The Application Is Under Maintenance
 |--------------------------------------------------------------------------
 */
