@@ -25,6 +25,7 @@ function dosDateTime() {
 
 const EXCLUDE = [
   /(^|\/)\.env$/,
+  /(^|\/)\.env\.(?!example$).+$/,
   /(^|\/)\.git(\/|$)/,
   /(^|\/)\.DS_Store$/,
   /(^|\/)node_modules(\/|$)/,
