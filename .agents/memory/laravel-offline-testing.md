@@ -22,3 +22,13 @@ There is NO local MySQL, and a backgrounded `php artisan serve` gets SIGKILLed. 
 **Why:** cloning an Eloquent builder that already has `->latest(col)`/`->orderBy(col)` and then adding an aggregate-only `selectRaw('SUM(...), COUNT(*)')->first()` leaves the `ORDER BY col` in the SQL with no `GROUP BY`. MySQL rejects this with `SQLSTATE[42000] 1140 Mixing of GROUP columns ... is illegal`. SQLite silently allows it, so offline tests pass while the live MySQL page 500s.
 
 **How to apply:** when building a totals/summary query from a cloned list query, strip the order first: `(clone $query)->reorder()->selectRaw('SUM(...)')->first()`. Audit every `(clone $query)->selectRaw('SUM` after a `latest()`/`orderBy()`. (Real bug: ContractorPayment/Expense/Income index totals.)
+
+# Smoke-testing Jwani login via curl (live dev server)
+
+The dev preview is `DB_CONNECTION=sqlite` (`database/database.sqlite`) + `SESSION_DRIVER=file`, fully separate from the live cPanel MySQL site — so resetting the admin (`User::find(1)`, name بەڕێوەبەر) password to a known value via tinker just for a curl login test is safe and never touches production.
+
+Two traps that silently break the curl login flow (both cost real time):
+- Never name the shell var `UID` for the dropdown user id — `UID` is bash-readonly, the assignment fails, `user_id` posts empty, login 302s back to `/login` with no error. Use `USERID`.
+- `rg -c "<phrase>"` over rendered HTML also matches the phrase inside HTML comments. The back-button comment `<!-- ... گەڕانەوە بۆ بەشەکان ... -->` is always present, so assert on the real anchor (`title="..."`/`href`), not the bare phrase.
+
+Login form posts `user_id` (dropdown value = raw id) + `password` + `_token`; success 302s to the proxy `/jwani`, failure 302s to `127.0.0.1:5000/login`.
