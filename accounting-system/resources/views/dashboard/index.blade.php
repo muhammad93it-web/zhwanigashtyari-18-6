@@ -18,7 +18,7 @@
                 ['label' => 'وەرگرتنی پارە', 'url' => route('incomes.index'), 'show' => true,
                  'icon' => '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v3.586L7.707 8.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 9.586V6z" clip-rule="evenodd"/>'],
                 ['label' => 'خەرجکردنی پارە', 'url' => route('expenses.index'), 'show' => true,
-                 'icon' => '<path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zM9 14V10.414L7.707 11.707a1 1 0 01-1.414-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 10.414V14a1 1 0 11-2 0z" clip-rule="evenodd"/>'],
+                 'icon' => '<path fill-rule="evenodd" d="M10 2a8 8 0 100 16A8 8 0 0010 2zM9 14V10.414L7.707 11.707a1 1 0 01-1.414-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 10.414V14a1 1 0 11-2 0z" clip-rule="evenodd"/>'],
                 ['label' => 'قەرزەکان', 'url' => route('debts.index'), 'show' => true,
                  'icon' => '<path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/><path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/>'],
             ],
@@ -75,6 +75,8 @@
             'accent' => 'from-slate-600 to-slate-700',
             'icon' => '<path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>',
             'items' => [
+                ['label' => 'ڕاپۆرتی پێشکەوتوو', 'url' => route('reports.advanced'), 'show' => true,
+                 'icon' => '<path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>'],
                 ['label' => 'ڕاپۆرتی ڕۆژانە', 'url' => route('reports.daily'), 'show' => true,
                  'icon' => '<path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>'],
                 ['label' => 'کۆی هەموو بەشەکان', 'url' => route('reports.summary'), 'show' => true,
@@ -109,11 +111,12 @@
                  'icon' => '<path d="M8 5a1 1 0 100 2h5.586l-1.293 1.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L13.586 5H8zM12 15a1 1 0 100-2H6.414l1.293-1.293a1 1 0 10-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L6.414 15H12z"/>'],
                 ['label' => 'بەڕێوەبردنی بەکارهێنەران', 'url' => route('users.index'), 'show' => $u->is_admin,
                  'icon' => '<path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>'],
+                ['label' => 'ڕێکخستنی سیستەم', 'url' => route('settings.index'), 'show' => $u->is_admin,
+                 'icon' => '<path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>'],
             ],
         ],
     ];
 
-    // هەموو بەشەکان وەک یەک ڕیز کارتی جوان (بەبێ پۆلێنکردن)
     $items = [];
     foreach ($groups as $g) {
         if (! $g['show']) continue;
@@ -122,7 +125,6 @@
         }
     }
 
-    // لۆگۆ وەک base64 (asset() لەسەر هۆستی cPanel ناکار دەکات)
     $logoPath = public_path('images/logo.png');
     $logoSrc = is_file($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : '';
 @endphp
@@ -138,7 +140,7 @@
     </div>
 </div>
 
-{{-- ڕیزبەندی کارتەکان (بەبێ پۆلێن) --}}
+{{-- ڕیزبەندی کارتەکان --}}
 <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2.5 sm:gap-3">
     @foreach ($items as $item)
         <a href="{{ $item['url'] }}"

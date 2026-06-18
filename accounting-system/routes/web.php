@@ -17,6 +17,7 @@ use App\Http\Controllers\PrintCenterController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\PurchaseInvoiceController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\SupplierPaymentController;
 use App\Http\Controllers\TransactionController;
@@ -99,6 +100,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/reports/client/{client}', [ReportController::class, 'clientReport'])->name('reports.client');
         Route::get('/reports/export/excel', [ReportController::class, 'exportExcel'])->name('reports.export.excel');
         Route::get('/reports/client/{client}/export', [ReportController::class, 'exportClientExcel'])->name('reports.client.export');
+        // Advanced reports
+        Route::get('/reports/advanced', [ReportController::class, 'advanced'])->name('reports.advanced');
+        Route::get('/reports/advanced/excel', [ReportController::class, 'exportAdvancedExcel'])->name('reports.advanced.excel');
+        Route::get('/reports/advanced/word', [ReportController::class, 'exportAdvancedWord'])->name('reports.advanced.word');
     });
 
     // ===== کارگێڕی / Administration =====
@@ -132,5 +137,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('users', UserController::class)->except(['show']);
         Route::get('users/{user}/password', [UserController::class, 'editPassword'])->name('users.password.edit');
         Route::put('users/{user}/password', [UserController::class, 'updatePassword'])->name('users.password.update');
+        // System Settings (admin only)
+        Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+        Route::get('/settings/backup', [SettingsController::class, 'downloadBackup'])->name('settings.backup.download');
+        Route::post('/settings/backup/import', [SettingsController::class, 'importBackup'])->name('settings.backup.import');
     });
 });

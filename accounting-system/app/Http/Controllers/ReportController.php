@@ -2,16 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\AdvancedReportExport;
 use App\Exports\ClientTransactionsExport;
 use App\Exports\TransactionsExport;
 use App\Models\Client;
+use App\Models\Contractor;
 use App\Models\ContractorPayment;
 use App\Models\Debt;
 use App\Models\Expense;
 use App\Models\Income;
+use App\Models\LaborPayment;
+use App\Models\Material;
 use App\Models\MaterialMovement;
+use App\Models\Project;
+use App\Models\PurchaseInvoice;
+use App\Models\Supplier;
 use App\Models\Transaction;
+use App\Models\Worker;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\View;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
@@ -66,9 +75,7 @@ class ReportController extends Controller
         return view('reports.client', compact('client', 'transactions', 'balances'));
     }
 
-    /**
-     * ڕاپۆرتی ڕۆژانە — هەموو جووڵەکانی یەک ڕۆژ
-     */
+    /** ڕاپۆرتی ڕۆژانە */
     public function daily(Request $request)
     {
         $date = $request->get('date', now()->format('Y-m-d'));
@@ -91,9 +98,7 @@ class ReportController extends Controller
         return view('reports.daily', compact('date', 'incomes', 'expenses', 'purchases', 'sales', 'payments', 'totals'));
     }
 
-    /**
-     * کۆی هەموو بەشەکان — لە ماوەیەکی دیاریکراودا
-     */
+    /** کۆی هەموو بەشەکان */
     public function summary(Request $request)
     {
         $from = $request->get('from_date', now()->startOfMonth()->format('Y-m-d'));
@@ -122,9 +127,7 @@ class ReportController extends Controller
         return view('reports.summary', compact('rows', 'totals', 'from', 'to'));
     }
 
-    /**
-     * تێچووی گشتیی پڕۆژە — کۆی تەواوی خەرجییەکان
-     */
+    /** تێچووی گشتیی پڕۆژە */
     public function projectCost(Request $request)
     {
         $from = $request->get('from_date');
@@ -163,6 +166,329 @@ class ReportController extends Controller
 
         return view('reports.project-cost', compact('costs', 'income', 'totals', 'from', 'to'));
     }
+
+    /* ==================== ADVANCED REPORTS ==================== */
+
+    public function advanced(Request $request)
+    {
+        $section  = $request->get('section', 'incomes');
+        $fromDate = $request->get('from_date', now()->startOfMonth()->format('Y-m-d'));
+        $toDate   = $request->get('to_date', now()->format('Y-m-d'));
+
+        $results  = collect();
+        $totals   = ['iqd' => 0.0, 'usd' => 0.0, 'count' => 0];
+
+        switch ($section) {
+
+            case 'incomes':
+                $q = Income::with('user')
+                    ->whereBetween('income_date', [$fromDate, $toDate]);
+                if ($request->filled('search'))
+                    $q->where(fn($qq) => $qq->where('source', 'like', '%' . $request->search . '%')
+                        ->orWhere('category', 'like', '%' . $request->search . '%'));
+                $results = $q->orderByDesc('income_date')->get();
+                $totals  = ['iqd' => $results->sum('amount_iqd'), 'usd' => $results->sum('amount_usd'), 'count' => $results->count()];
+                break;
+
+            case 'expenses':
+                $q = Expense::with('user', 'project')
+                    ->whereBetween('expense_date', [$fromDate, $toDate]);
+                if ($request->filled('search'))
+                    $q->where(fn($qq) => $qq->where('payee', 'like', '%' . $request->search . '%')
+                        ->orWhere('category', 'like', '%' . $request->search . '%')
+                        ->orWhere('description', 'like', '%' . $request->search . '%'));
+                if ($request->filled('project_id'))
+                    $q->where('project_id', $request->project_id);
+                $results = $q->orderByDesc('expense_date')->get();
+                $totals  = ['iqd' => $results->sum('amount_iqd'), 'usd' => $results->sum('amount_usd'), 'count' => $results->count()];
+                break;
+
+            case 'material_purchases':
+                $q = MaterialMovement::with('material', 'user')
+                    ->where('type', 'purchase')
+                    ->whereBetween('movement_date', [$fromDate, $toDate]);
+                if ($request->filled('material_id'))
+                    $q->where('material_id', $request->material_id);
+                if ($request->filled('search'))
+                    $q->where('party_name', 'like', '%' . $request->search . '%');
+                $results = $q->orderByDesc('movement_date')->get();
+                $totals  = ['iqd' => $results->sum('amount_iqd'), 'usd' => $results->sum('amount_usd'), 'count' => $results->count()];
+                break;
+
+            case 'material_sales':
+                $q = MaterialMovement::with('material', 'user')
+                    ->where('type', 'sale')
+                    ->whereBetween('movement_date', [$fromDate, $toDate]);
+                if ($request->filled('material_id'))
+                    $q->where('material_id', $request->material_id);
+                if ($request->filled('search'))
+                    $q->where('party_name', 'like', '%' . $request->search . '%');
+                $results = $q->orderByDesc('movement_date')->get();
+                $totals  = ['iqd' => $results->sum('amount_iqd'), 'usd' => $results->sum('amount_usd'), 'count' => $results->count()];
+                break;
+
+            case 'purchase_invoices':
+                $q = PurchaseInvoice::with('supplier', 'project', 'user')
+                    ->whereBetween('date', [$fromDate, $toDate]);
+                if ($request->filled('supplier_id'))
+                    $q->where('supplier_id', $request->supplier_id);
+                if ($request->filled('project_id'))
+                    $q->where('project_id', $request->project_id);
+                if ($request->filled('search'))
+                    $q->where(fn($qq) => $qq->where('deliverer_name', 'like', '%' . $request->search . '%')
+                        ->orWhere('notes', 'like', '%' . $request->search . '%'));
+                $results = $q->orderByDesc('date')->get();
+                $totals  = ['iqd' => $results->sum('total_iqd'), 'usd' => $results->sum('total_usd'), 'count' => $results->count()];
+                break;
+
+            case 'contractor_payments':
+                $q = ContractorPayment::with('contractor', 'user')
+                    ->whereBetween('payment_date', [$fromDate, $toDate]);
+                if ($request->filled('contractor_id'))
+                    $q->where('contractor_id', $request->contractor_id);
+                if ($request->filled('search'))
+                    $q->where('description', 'like', '%' . $request->search . '%');
+                $results = $q->orderByDesc('payment_date')->get();
+                $totals  = ['iqd' => $results->sum('amount_iqd'), 'usd' => $results->sum('amount_usd'), 'count' => $results->count()];
+                break;
+
+            case 'labor_payments':
+                $q = LaborPayment::with('worker', 'project', 'user')
+                    ->whereBetween('date', [$fromDate, $toDate]);
+                if ($request->filled('worker_id'))
+                    $q->where('worker_id', $request->worker_id);
+                if ($request->filled('project_id'))
+                    $q->where('project_id', $request->project_id);
+                if ($request->filled('search'))
+                    $q->where(fn($qq) => $qq->where('worker_name', 'like', '%' . $request->search . '%')
+                        ->orWhere('role', 'like', '%' . $request->search . '%'));
+                $results = $q->orderByDesc('date')->get();
+                $totals  = ['iqd' => 0, 'usd' => 0, 'count' => $results->count()];
+                // labor_payments don't have amount_iqd — just amount + currency
+                break;
+
+            case 'transactions':
+                $q = Transaction::with('client', 'user')
+                    ->whereBetween('transaction_date', [$fromDate, $toDate]);
+                if ($request->filled('client_id'))
+                    $q->where('client_id', $request->client_id);
+                if ($request->filled('type'))
+                    $q->where('type', $request->type);
+                if ($request->filled('search'))
+                    $q->where(fn($qq) => $qq->where('description', 'like', '%' . $request->search . '%')
+                        ->orWhere('reference_number', 'like', '%' . $request->search . '%'));
+                $results = $q->orderByDesc('transaction_date')->get();
+                $totals  = ['iqd' => $results->sum('amount_iqd'), 'usd' => $results->sum('amount_usd'), 'count' => $results->count()];
+                break;
+        }
+
+        $filterOptions = [
+            'suppliers'   => Supplier::orderBy('name')->get(['id', 'name']),
+            'contractors' => Contractor::orderBy('name')->get(['id', 'name']),
+            'workers'     => Worker::orderBy('name')->get(['id', 'name']),
+            'materials'   => Material::orderBy('name')->get(['id', 'name']),
+            'projects'    => Project::orderBy('name')->get(['id', 'name']),
+            'clients'     => Client::orderBy('name')->get(['id', 'name']),
+        ];
+
+        return view('reports.advanced', compact('results', 'totals', 'section', 'fromDate', 'toDate', 'filterOptions'));
+    }
+
+    public function exportAdvancedExcel(Request $request)
+    {
+        $fromDate = $request->get('from_date', now()->startOfMonth()->format('Y-m-d'));
+        $toDate   = $request->get('to_date', now()->format('Y-m-d'));
+
+        [$rows, $headings, $columns, $title] = $this->buildExportData($request);
+
+        $filename = $title . '_' . $fromDate . '_' . $toDate . '.xlsx';
+        return Excel::download(new AdvancedReportExport($rows, $headings, $columns, $title), $filename);
+    }
+
+    public function exportAdvancedWord(Request $request)
+    {
+        [$rows, $headings, $columns, $title] = $this->buildExportData($request);
+
+        $fromDate = $request->get('from_date', now()->startOfMonth()->format('Y-m-d'));
+        $toDate   = $request->get('to_date', now()->format('Y-m-d'));
+
+        $html = view('reports.advanced-word', compact('rows', 'headings', 'columns', 'title', 'fromDate', 'toDate'))->render();
+
+        $filename = $title . '_' . $fromDate . '_' . $toDate . '.doc';
+
+        return response($html)
+            ->header('Content-Type', 'application/vnd.ms-word; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
+    /**
+     * Returns [$rows, $headings, $columns, $title] for export.
+     */
+    private function buildExportData(Request $request): array
+    {
+        $section  = $request->get('section', 'incomes');
+        $fromDate = $request->get('from_date', now()->startOfMonth()->format('Y-m-d'));
+        $toDate   = $request->get('to_date', now()->format('Y-m-d'));
+
+        $fmt_iqd = fn($v) => number_format((float) $v, 0);
+        $fmt_usd = fn($v) => number_format((float) $v, 2);
+
+        switch ($section) {
+            case 'incomes':
+                $rows = Income::with('user')
+                    ->whereBetween('income_date', [$fromDate, $toDate])
+                    ->when($request->filled('search'), fn($q) => $q->where('source', 'like', '%' . $request->search . '%'))
+                    ->orderByDesc('income_date')->get();
+                $headings = ['بەروار', 'سەرچاوە', 'جۆر', 'دراو', 'بڕ', 'بەدینار', 'تێبینی'];
+                $columns  = [
+                    fn($r) => $r->income_date->format('Y-m-d'),
+                    fn($r) => $r->source,
+                    fn($r) => $r->category ?? '—',
+                    fn($r) => $r->currency,
+                    fn($r) => $fmt_usd($r->amount),
+                    fn($r) => $fmt_iqd($r->amount_iqd),
+                    fn($r) => $r->notes ?? '',
+                ];
+                $title = 'وەرگرتنی پارە';
+                break;
+
+            case 'expenses':
+                $rows = Expense::with('user', 'project')
+                    ->whereBetween('expense_date', [$fromDate, $toDate])
+                    ->when($request->filled('project_id'), fn($q) => $q->where('project_id', $request->project_id))
+                    ->when($request->filled('search'), fn($q) => $q->where('payee', 'like', '%' . $request->search . '%'))
+                    ->orderByDesc('expense_date')->get();
+                $headings = ['بەروار', 'وەرگر', 'جۆر', 'پڕۆژە', 'دراو', 'بڕ', 'بەدینار'];
+                $columns  = [
+                    fn($r) => $r->expense_date->format('Y-m-d'),
+                    fn($r) => $r->payee,
+                    fn($r) => $r->category ?? '—',
+                    fn($r) => $r->project?->name ?? '—',
+                    fn($r) => $r->currency,
+                    fn($r) => $fmt_usd($r->amount),
+                    fn($r) => $fmt_iqd($r->amount_iqd),
+                ];
+                $title = 'خەرجکردنی پارە';
+                break;
+
+            case 'material_purchases':
+                $rows = MaterialMovement::with('material', 'user')
+                    ->where('type', 'purchase')
+                    ->whereBetween('movement_date', [$fromDate, $toDate])
+                    ->when($request->filled('material_id'), fn($q) => $q->where('material_id', $request->material_id))
+                    ->orderByDesc('movement_date')->get();
+                $headings = ['بەروار', 'مەواد', 'دابینکەر', 'بڕ', 'نرخی یەکە', 'دراو', 'کۆ', 'بەدینار'];
+                $columns  = [
+                    fn($r) => $r->movement_date->format('Y-m-d'),
+                    fn($r) => $r->material?->name ?? '—',
+                    fn($r) => $r->party_name ?? '—',
+                    fn($r) => $fmt_usd($r->quantity),
+                    fn($r) => $fmt_usd($r->unit_price),
+                    fn($r) => $r->currency,
+                    fn($r) => $fmt_usd($r->amount),
+                    fn($r) => $fmt_iqd($r->amount_iqd),
+                ];
+                $title = 'کڕینی مەواد';
+                break;
+
+            case 'material_sales':
+                $rows = MaterialMovement::with('material', 'user')
+                    ->where('type', 'sale')
+                    ->whereBetween('movement_date', [$fromDate, $toDate])
+                    ->when($request->filled('material_id'), fn($q) => $q->where('material_id', $request->material_id))
+                    ->orderByDesc('movement_date')->get();
+                $headings = ['بەروار', 'مەواد', 'کڕیار', 'بڕ', 'نرخی یەکە', 'دراو', 'کۆ', 'بەدینار'];
+                $columns  = [
+                    fn($r) => $r->movement_date->format('Y-m-d'),
+                    fn($r) => $r->material?->name ?? '—',
+                    fn($r) => $r->party_name ?? '—',
+                    fn($r) => $fmt_usd($r->quantity),
+                    fn($r) => $fmt_usd($r->unit_price),
+                    fn($r) => $r->currency,
+                    fn($r) => $fmt_usd($r->amount),
+                    fn($r) => $fmt_iqd($r->amount_iqd),
+                ];
+                $title = 'فرۆشتنی مەواد';
+                break;
+
+            case 'purchase_invoices':
+                $rows = PurchaseInvoice::with('supplier', 'project', 'user')
+                    ->whereBetween('date', [$fromDate, $toDate])
+                    ->when($request->filled('supplier_id'), fn($q) => $q->where('supplier_id', $request->supplier_id))
+                    ->when($request->filled('project_id'), fn($q) => $q->where('project_id', $request->project_id))
+                    ->orderByDesc('date')->get();
+                $headings = ['بەروار', 'دابینکەر', 'پڕۆژە', 'کۆی گشتی (د)', 'پارەدراو (د)', 'ماوە (د)', 'تێبینی'];
+                $columns  = [
+                    fn($r) => $r->date->format('Y-m-d'),
+                    fn($r) => $r->party_name,
+                    fn($r) => $r->project?->name ?? '—',
+                    fn($r) => $fmt_iqd($r->total_iqd),
+                    fn($r) => $fmt_iqd($r->paid_iqd),
+                    fn($r) => $fmt_iqd($r->remaining_iqd),
+                    fn($r) => $r->notes ?? '',
+                ];
+                $title = 'کڕینی بە وەسڵ';
+                break;
+
+            case 'contractor_payments':
+                $rows = ContractorPayment::with('contractor', 'user')
+                    ->whereBetween('payment_date', [$fromDate, $toDate])
+                    ->when($request->filled('contractor_id'), fn($q) => $q->where('contractor_id', $request->contractor_id))
+                    ->orderByDesc('payment_date')->get();
+                $headings = ['بەروار', 'وەستا', 'مەتر', 'دراو', 'بڕ', 'بەدینار'];
+                $columns  = [
+                    fn($r) => $r->payment_date->format('Y-m-d'),
+                    fn($r) => $r->contractor?->name ?? '—',
+                    fn($r) => $r->meters ? $fmt_usd($r->meters) : '—',
+                    fn($r) => $r->currency,
+                    fn($r) => $fmt_usd($r->amount),
+                    fn($r) => $fmt_iqd($r->amount_iqd),
+                ];
+                $title = 'پارەدانی وەستا';
+                break;
+
+            case 'labor_payments':
+                $rows = LaborPayment::with('worker', 'project', 'user')
+                    ->whereBetween('date', [$fromDate, $toDate])
+                    ->when($request->filled('worker_id'), fn($q) => $q->where('worker_id', $request->worker_id))
+                    ->when($request->filled('project_id'), fn($q) => $q->where('project_id', $request->project_id))
+                    ->orderByDesc('date')->get();
+                $headings = ['بەروار', 'کرێکار', 'ڕۆڵ', 'پڕۆژە', 'کاتژمێر', 'بڕ', 'دراو'];
+                $columns  = [
+                    fn($r) => $r->date->format('Y-m-d'),
+                    fn($r) => $r->worker?->name ?? $r->worker_name ?? '—',
+                    fn($r) => $r->role ?? '—',
+                    fn($r) => $r->project?->name ?? '—',
+                    fn($r) => $r->is_hourly ? $fmt_usd($r->hours) : '—',
+                    fn($r) => $fmt_usd($r->amount),
+                    fn($r) => $r->currency,
+                ];
+                $title = 'کرێی کارەکان';
+                break;
+
+            default: // transactions
+                $rows = Transaction::with('client', 'user')
+                    ->whereBetween('transaction_date', [$fromDate, $toDate])
+                    ->when($request->filled('client_id'), fn($q) => $q->where('client_id', $request->client_id))
+                    ->when($request->filled('type'), fn($q) => $q->where('type', $request->type))
+                    ->orderByDesc('transaction_date')->get();
+                $headings = ['بەروار', 'کڕیار', 'جۆر', 'دراو', 'بڕ', 'بەدینار'];
+                $columns  = [
+                    fn($r) => $r->transaction_date->format('Y-m-d'),
+                    fn($r) => $r->client?->name ?? '—',
+                    fn($r) => Transaction::TYPES[$r->type] ?? $r->type,
+                    fn($r) => $r->currency,
+                    fn($r) => $fmt_usd($r->amount),
+                    fn($r) => $fmt_iqd($r->amount_iqd),
+                ];
+                $title = 'مامەڵە گشتییەکان';
+                break;
+        }
+
+        return [$rows, $headings, $columns, $title];
+    }
+
+    /* ==================== OLD EXPORTS ==================== */
 
     public function exportExcel(Request $request)
     {
