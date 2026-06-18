@@ -139,14 +139,14 @@
 </div>
 
 {{-- ڕیزبەندی کارتەکان (بەبێ پۆلێن) --}}
-<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4">
+<div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2.5 sm:gap-3">
     @foreach ($items as $item)
         <a href="{{ $item['url'] }}"
-           class="group bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 flex flex-col items-center text-center hover:shadow-md hover:border-green-300 hover:-translate-y-0.5 transition-all duration-150">
-            <span class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 text-white flex items-center justify-center shadow-sm mb-3 group-hover:scale-105 transition-transform duration-150">
-                <svg class="w-7 h-7 sm:w-8 sm:h-8" fill="currentColor" viewBox="0 0 20 20">{!! $item['icon'] !!}</svg>
+           class="group bg-white rounded-xl border border-slate-200 p-3 flex flex-col items-center text-center hover:shadow-md hover:border-green-300 hover:-translate-y-0.5 transition-all duration-150">
+            <span class="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 text-white flex items-center justify-center shadow-sm mb-2 group-hover:scale-105 transition-transform duration-150">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 20 20">{!! $item['icon'] !!}</svg>
             </span>
-            <span class="text-xs sm:text-sm font-bold text-slate-700 leading-tight">{{ $item['label'] }}</span>
+            <span class="text-[11px] sm:text-xs font-bold text-slate-700 leading-tight">{{ $item['label'] }}</span>
         </a>
     @endforeach
 </div>
