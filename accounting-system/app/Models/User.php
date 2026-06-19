@@ -26,6 +26,7 @@ class User extends Authenticatable
         'clients'        => 'کڕیاران و کەسەکان',
         'transactions'   => 'مامەڵە گشتییەکان',
         'exchange_rates' => 'ڕێژەی گۆڕینی دراو',
+        'telegram'       => 'ناردنی خۆکار بۆ تێلێگرام',
     ];
 
     protected $fillable = ['name', 'email', 'password', 'is_admin', 'permissions'];

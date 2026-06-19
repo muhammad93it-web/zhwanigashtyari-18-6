@@ -22,6 +22,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\SupplierPaymentController;
+use App\Http\Controllers\TelegramController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorkerController;
@@ -146,6 +147,17 @@ Route::middleware('auth')->group(function () {
     Route::middleware('perm:exchange_rates')->group(function () {
         Route::resource('exchange-rates', ExchangeRateController::class)->only(['index', 'store', 'destroy']);
         Route::get('/exchange-rates/current', [ExchangeRateController::class, 'current'])->name('exchange-rates.current');
+    });
+
+    // ===== ناردن بۆ تێلێگرام / Telegram auto-delivery =====
+    Route::middleware('perm:telegram')->group(function () {
+        Route::get('/telegram', [TelegramController::class, 'index'])->name('telegram.index');
+        Route::post('/telegram/settings', [TelegramController::class, 'saveSettings'])->name('telegram.settings');
+        Route::post('/telegram/test', [TelegramController::class, 'test'])->name('telegram.test');
+        Route::post('/telegram/schedules', [TelegramController::class, 'storeSchedule'])->name('telegram.schedules.store');
+        Route::post('/telegram/schedules/{schedule}/toggle', [TelegramController::class, 'toggleSchedule'])->name('telegram.schedules.toggle');
+        Route::post('/telegram/schedules/{schedule}/send', [TelegramController::class, 'sendNow'])->name('telegram.schedules.send');
+        Route::delete('/telegram/schedules/{schedule}', [TelegramController::class, 'destroySchedule'])->name('telegram.schedules.destroy');
     });
 
     // ===== بەڕێوەبردنی بەکارهێنەران / User management (admin only) =====

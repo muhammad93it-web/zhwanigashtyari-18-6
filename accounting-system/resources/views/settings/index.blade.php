@@ -92,6 +92,25 @@
         </form>
     </div>
 
+    {{-- ===== TELEGRAM AUTO-DELIVERY LINK ===== --}}
+    <div class="card p-6 lg:col-span-2">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
+                </div>
+                <div>
+                    <h2 class="text-base font-bold text-slate-800">ناردنی خۆکار بۆ تێلێگرام</h2>
+                    <p class="text-xs text-slate-500">ناردنی باکئەپ و ڕاپۆرتەکان بە شێوەی خۆکار یان دەستی بۆ تێلێگرام</p>
+                </div>
+            </div>
+            <a href="{{ route('telegram.index') }}" class="btn-primary justify-center gap-2 whitespace-nowrap">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
+                کردنەوەی ڕێکخستنی تێلێگرام
+            </a>
+        </div>
+    </div>
+
     {{-- ===== COLOR THEME ===== --}}
     <div class="card p-6 lg:col-span-2">
         <div class="flex items-center gap-3 mb-5">

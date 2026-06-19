@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\BackupService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -9,28 +10,40 @@ class SettingsController extends Controller
 {
     public function index()
     {
-        $dbPath = config('database.connections.sqlite.database');
-        $dbExists = $dbPath && file_exists($dbPath);
-        $dbSizeMb = $dbExists ? round(filesize($dbPath) / 1024 / 1024, 2) : 0;
-        $dbModified = $dbExists ? date('Y-m-d H:i', filemtime($dbPath)) : null;
+        $driver = DB::connection()->getDriverName();
 
-        return view('settings.index', compact('dbExists', 'dbSizeMb', 'dbModified'));
-    }
-
-    public function downloadBackup()
-    {
-        $dbPath = config('database.connections.sqlite.database');
-
-        if (! $dbPath || ! file_exists($dbPath)) {
-            return back()->with('error', 'فایلی داتابەیس نەدۆزرایەوە.');
+        if ($driver === 'sqlite') {
+            $dbPath     = config('database.connections.sqlite.database');
+            $dbExists   = $dbPath && file_exists($dbPath);
+            $dbSizeMb   = $dbExists ? round(filesize($dbPath) / 1024 / 1024, 2) : 0;
+            $dbModified = $dbExists ? date('Y-m-d H:i', filemtime($dbPath)) : null;
+        } else {
+            $dbExists = true;
+            $name = DB::connection()->getDatabaseName();
+            $row  = DB::selectOne(
+                'SELECT COALESCE(SUM(DATA_LENGTH + INDEX_LENGTH), 0) AS bytes FROM information_schema.TABLES WHERE TABLE_SCHEMA = ?',
+                [$name]
+            );
+            $dbSizeMb   = round((float) ($row->bytes ?? 0) / 1024 / 1024, 2);
+            $dbModified = now()->format('Y-m-d H:i');
         }
 
-        $filename = 'jwani_backup_' . now()->format('Ymd_His') . '.sqlite';
+        $driverLabel = $driver === 'sqlite' ? 'SQLite' : 'MySQL';
 
-        return response()->download($dbPath, $filename, [
-            'Content-Type'        => 'application/octet-stream',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ]);
+        return view('settings.index', compact('dbExists', 'dbSizeMb', 'dbModified', 'driver', 'driverLabel'));
+    }
+
+    public function downloadBackup(BackupService $backup)
+    {
+        try {
+            $result = $backup->generate();
+        } catch (\Throwable $e) {
+            return back()->with('error', 'نەتوانرا باکئەپ دروست بکرێت: ' . $e->getMessage());
+        }
+
+        return response()
+            ->download($result['path'], $result['filename'])
+            ->deleteFileAfterSend(true);
     }
 
     public function importBackup(Request $request)
@@ -45,8 +58,8 @@ class SettingsController extends Controller
 
         $dbPath = config('database.connections.sqlite.database');
 
-        if (! $dbPath) {
-            return back()->with('error', 'ئەم تایبەتمەندییە تەنها لە دۆخی SQLite کار دەکات.');
+        if (! $dbPath || DB::connection()->getDriverName() !== 'sqlite') {
+            return back()->with('error', 'هێنانی باکئەپ لە ناو سیستەمەوە تەنها لە دۆخی SQLite کار دەکات. لەسەر هۆستی MySQL، باکئەپ بە phpMyAdmin بهێنە.');
         }
 
         $file = $request->file('backup_file');

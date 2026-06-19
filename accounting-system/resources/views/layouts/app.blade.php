@@ -119,6 +119,13 @@
                     <div class="text-[11px] text-slate-400">{{ Auth::user()->is_admin ? 'بەڕێوەبەر' : 'بەکارهێنەر' }}</div>
                 </div>
             </div>
+            @if(Auth::user()->hasAccess('telegram'))
+            <div class="h-8 w-px bg-slate-200"></div>
+            <a href="{{ route('telegram.index') }}" class="inline-flex items-center gap-1.5 text-slate-500 hover:text-green-600 transition-colors px-2 py-1.5 rounded-lg hover:bg-green-50 text-sm font-medium {{ request()->routeIs('telegram.*') ? 'text-green-600 bg-green-50' : '' }}" title="ناردن بۆ تێلێگرام">
+                <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
+                <span class="hidden lg:inline">تێلێگرام</span>
+            </a>
+            @endif
             @if(Auth::user()->is_admin)
             <div class="h-8 w-px bg-slate-200"></div>
             <a href="{{ route('settings.index') }}" class="inline-flex items-center gap-1.5 text-slate-500 hover:text-green-600 transition-colors px-2 py-1.5 rounded-lg hover:bg-green-50 text-sm font-medium {{ request()->routeIs('settings.*') ? 'text-green-600 bg-green-50' : '' }}" title="ڕێکخستنی سیستەم">

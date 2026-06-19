@@ -625,6 +625,57 @@ ALTER TABLE `expenses`
 --  INITIAL DATA
 -- =====================================================================
 
+-- ---------------------------------------------------------------------
+-- app_settings (key-value store: Telegram config, etc.)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `app_settings` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `key` varchar(255) NOT NULL,
+  `value` text,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `app_settings_key_unique` (`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
+-- telegram_schedules (auto-send schedules)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `telegram_schedules` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) DEFAULT NULL,
+  `content_type` varchar(255) NOT NULL,
+  `frequency` varchar(255) NOT NULL,
+  `day_of_month` tinyint unsigned DEFAULT NULL,
+  `send_time` varchar(5) NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `last_sent_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `telegram_schedules_is_active_index` (`is_active`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
+-- telegram_delivery_logs (delivery history)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `telegram_delivery_logs` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `telegram_schedule_id` bigint unsigned DEFAULT NULL,
+  `content_type` varchar(255) NOT NULL,
+  `status` varchar(255) NOT NULL,
+  `trigger` varchar(255) NOT NULL DEFAULT 'schedule',
+  `file_name` varchar(255) DEFAULT NULL,
+  `message` text,
+  `sent_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `telegram_delivery_logs_created_at_index` (`created_at`),
+  KEY `telegram_delivery_logs_telegram_schedule_id_foreign` (`telegram_schedule_id`),
+  CONSTRAINT `telegram_delivery_logs_telegram_schedule_id_foreign` FOREIGN KEY (`telegram_schedule_id`) REFERENCES `telegram_schedules` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Mark migrations as applied
 INSERT INTO `migrations` (`migration`, `batch`) VALUES
   ('2024_01_01_000001_create_users_table', 1),
@@ -653,7 +704,10 @@ INSERT INTO `migrations` (`migration`, `batch`) VALUES
   ('2026_06_18_000002_create_driver_trip_logs_table', 1),
   ('2026_06_18_000003_create_driver_trip_details_table', 1),
   ('2026_06_18_000004_create_driver_transactions_table', 1),
-  ('2026_06_18_000005_add_driver_trip_log_id_to_expenses_table', 1);
+  ('2026_06_18_000005_add_driver_trip_log_id_to_expenses_table', 1),
+  ('2026_06_19_000001_create_app_settings_table', 1),
+  ('2026_06_19_000002_create_telegram_schedules_table', 1),
+  ('2026_06_19_000003_create_telegram_delivery_logs_table', 1);
 
 -- Admin user  (login: admin@jwani.com  /  password)
 INSERT INTO `users` (`name`, `email`, `password`, `is_admin`, `created_at`, `updated_at`) VALUES

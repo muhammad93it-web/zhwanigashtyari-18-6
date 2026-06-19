@@ -391,6 +391,51 @@ SET @s := IF(@c=0,'ALTER TABLE `expenses` ADD CONSTRAINT `expenses_driver_trip_l
 PREPARE stmt FROM @s; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 -- ---------------------------------------------------------------------
+-- telegram auto-delivery: app_settings + telegram_schedules + telegram_delivery_logs
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `app_settings` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `key` varchar(255) NOT NULL,
+  `value` text,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `app_settings_key_unique` (`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `telegram_schedules` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) DEFAULT NULL,
+  `content_type` varchar(255) NOT NULL,
+  `frequency` varchar(255) NOT NULL,
+  `day_of_month` tinyint unsigned DEFAULT NULL,
+  `send_time` varchar(5) NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `last_sent_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `telegram_schedules_is_active_index` (`is_active`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `telegram_delivery_logs` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `telegram_schedule_id` bigint unsigned DEFAULT NULL,
+  `content_type` varchar(255) NOT NULL,
+  `status` varchar(255) NOT NULL,
+  `trigger` varchar(255) NOT NULL DEFAULT 'schedule',
+  `file_name` varchar(255) DEFAULT NULL,
+  `message` text,
+  `sent_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `telegram_delivery_logs_created_at_index` (`created_at`),
+  KEY `telegram_delivery_logs_telegram_schedule_id_foreign` (`telegram_schedule_id`),
+  CONSTRAINT `telegram_delivery_logs_telegram_schedule_id_foreign` FOREIGN KEY (`telegram_schedule_id`) REFERENCES `telegram_schedules` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
 -- Mark the new migrations as applied (INSERT IGNORE = safe to re-run)
 -- so a later `php artisan migrate` does not try to re-create them.
 -- ---------------------------------------------------------------------
@@ -411,6 +456,9 @@ FROM (
   UNION ALL SELECT '2026_06_18_000003_create_driver_trip_details_table'
   UNION ALL SELECT '2026_06_18_000004_create_driver_transactions_table'
   UNION ALL SELECT '2026_06_18_000005_add_driver_trip_log_id_to_expenses_table'
+  UNION ALL SELECT '2026_06_19_000001_create_app_settings_table'
+  UNION ALL SELECT '2026_06_19_000002_create_telegram_schedules_table'
+  UNION ALL SELECT '2026_06_19_000003_create_telegram_delivery_logs_table'
 ) AS v
 WHERE NOT EXISTS (
   SELECT 1 FROM (SELECT * FROM `migrations`) AS m2 WHERE m2.`migration` = v.migration
