@@ -19,7 +19,7 @@ class DriverTripDetail extends Model
 
     const WORK_TYPES = [
         'waste_disposal' => 'گواستنەوەی خۆڵ و خاشاک',
-        'sub_base'       => 'سەب بەیس (Sub-base)',
+        'sub_base'       => 'تێکەڵە',
     ];
 
     public function tripLog()
