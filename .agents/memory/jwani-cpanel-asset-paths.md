@@ -18,3 +18,12 @@ and the app ships as a ZIP. A self-contained data URI removes all path dependenc
 **How to apply:** keep inlined images small (resize to ~128px, ~20KB → ~30KB base64)
 since the data URI lives in the HTML of every page that uses the layout. For larger
 images prefer fixing APP_URL, but for logos/icons inlining is the safe default here.
+
+## Compute base64 at runtime, never paste a giant literal
+A hardcoded `data:image/png;base64,...` literal in a Blade view (layout header) was
+silently TRUNCATED/corrupted, so the `<img>` rendered broken while sibling text showed
+fine. The login/dashboard worked because they compute it at runtime:
+`is_file(public_path('images/logo.png')) ? 'data:image/png;base64,'.base64_encode(file_get_contents(...)) : ''`.
+**Rule:** always inline images via runtime `base64_encode(file_get_contents(public_path(...)))`,
+never by pasting a multi-KB base64 string into source — long literals get mangled.
+**How to verify:** decode the rendered img src; a valid full logo here is ~81.6k base64 chars.

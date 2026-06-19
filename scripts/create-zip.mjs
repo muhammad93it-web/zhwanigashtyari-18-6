@@ -32,6 +32,9 @@ const EXCLUDE = [
   /(^|\/)bootstrap\/cache\/.*\.php$/,
   /(^|\/)storage\/framework\/(views|cache|sessions)\/(?!\.gitkeep$).+/,
   /(^|\/)storage\/logs\/.+\.log$/,
+  /(^|\/)database\/.*\.sqlite$/,
+  /(^|\/)\.replit-artifact(\/|$)/,
+  /(^|\/)\.replit$/,
 ];
 
 function getAllFiles(dir, base = dir) {
