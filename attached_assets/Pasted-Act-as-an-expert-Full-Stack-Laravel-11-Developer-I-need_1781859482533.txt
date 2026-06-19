@@ -1,0 +1,27 @@
+Act as an expert Full-Stack Laravel 11 Developer. I need to build the "Driver & Transportation Ledger" (حساباتی گواستنەوە و شۆفێر) for my construction ERP. 
+
+I want this module to identically match the advanced financial logic and UI structure I already have in my "Materials Purchase" module.
+
+REQUIREMENT 1: Database Updates (Multi-Currency & Debt Tracking)
+1. Update the `Driver` model to include balance tracking for both currencies: `balance_iqd` and `balance_usd`.
+2. Create `DriverTripLog` (Master record): Fields -> `driver_id`, `project_id`, `date`, `grand_total_iqd`, `grand_total_usd`, `paid_iqd`, `paid_usd`, `remaining_iqd`, `remaining_usd`.
+3. Create `DriverTripDetail` (Line items): Fields -> `driver_trip_log_id`, `work_type` (Waste Disposal, Sub-base), `trip_count`, `price_per_trip`, `currency` (IQD or USD), `line_total`.
+4. Create `DriverTransaction` (Statement of Account): To track whenever a log is submitted, logging the newly added debt or payments for that specific driver.
+
+REQUIREMENT 2: Dynamic Form UI (Blade & Vanilla JS)
+1. The UI must look exactly like my Purchase Invoice.
+2. Top section: `driver_id`, `project_id`, `date`.
+3. Dynamic rows: Each row must have `work_type` (Dropdown), `trip_count`, `price_per_trip`, `currency` (Dropdown: IQD / USD), and `line_total` (readonly).
+4. Bottom Summary (Vanilla JS Auto-Calculation): 
+   - Split the summary into two boxes: One for IQD and One for USD.
+   - Auto-calculate `Grand Total` for each currency by summing the respective line totals.
+   - Provide manual input fields for `Paid Amount (IQD)` and `Paid Amount (USD)`.
+   - Auto-calculate `Remaining (Debt)` for each currency (Grand Total - Paid Amount).
+
+REQUIREMENT 3: Controller & Financial Integration
+1. Write the `store` method using `DB::transaction`.
+2. Save the master log and the dynamic detail lines.
+3. If `paid_iqd` or `paid_usd` > 0, create a corresponding record in the main `Expense` module to deduct cash from the project.
+4. Update the Driver's overall balances (`balance_iqd` and `balance_usd`) by adding the `remaining_iqd` and `remaining_usd` respectively.
+
+Please provide the code step-by-step, starting with the Migrations.

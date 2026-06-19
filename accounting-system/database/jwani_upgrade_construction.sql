@@ -282,6 +282,115 @@ CREATE TABLE IF NOT EXISTS `labor_payments` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------
+-- drivers (شۆفێرەکان — گواستنەوە و شۆفێر)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `drivers` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `phone` varchar(255) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `vehicle_number` varchar(255) DEFAULT NULL,
+  `vehicle_type` varchar(255) DEFAULT NULL,
+  `balance` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `balance_iqd` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `balance_usd` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `notes` text,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `drivers_name_index` (`name`),
+  KEY `drivers_is_active_index` (`is_active`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
+-- driver_trip_logs (تۆماری گواستنەوە — سەرەکی)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `driver_trip_logs` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `driver_id` bigint unsigned NOT NULL,
+  `user_id` bigint unsigned DEFAULT NULL,
+  `project_id` bigint unsigned DEFAULT NULL,
+  `grand_total_iqd` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `grand_total_usd` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `paid_iqd` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `paid_usd` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `remaining_iqd` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `remaining_usd` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `date` date NOT NULL,
+  `notes` text,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `driver_trip_logs_date_index` (`date`),
+  KEY `driver_trip_logs_driver_id_foreign` (`driver_id`),
+  KEY `driver_trip_logs_user_id_foreign` (`user_id`),
+  KEY `driver_trip_logs_project_id_foreign` (`project_id`),
+  CONSTRAINT `driver_trip_logs_driver_id_foreign` FOREIGN KEY (`driver_id`) REFERENCES `drivers` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `driver_trip_logs_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `driver_trip_logs_project_id_foreign` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
+-- driver_trip_details (هێڵەکانی گواستنەوە)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `driver_trip_details` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `driver_trip_log_id` bigint unsigned NOT NULL,
+  `project_id` bigint unsigned DEFAULT NULL,
+  `work_type` varchar(255) NOT NULL,
+  `trip_count` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `price_per_trip` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `currency` enum('IQD','USD') NOT NULL DEFAULT 'IQD',
+  `line_total` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `driver_trip_details_driver_trip_log_id_foreign` (`driver_trip_log_id`),
+  KEY `driver_trip_details_project_id_foreign` (`project_id`),
+  CONSTRAINT `driver_trip_details_driver_trip_log_id_foreign` FOREIGN KEY (`driver_trip_log_id`) REFERENCES `driver_trip_logs` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `driver_trip_details_project_id_foreign` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
+-- driver_transactions (کشف حساب / لێژەری شۆفێر)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `driver_transactions` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `driver_id` bigint unsigned NOT NULL,
+  `driver_trip_log_id` bigint unsigned DEFAULT NULL,
+  `expense_id` bigint unsigned DEFAULT NULL,
+  `user_id` bigint unsigned DEFAULT NULL,
+  `type` enum('trip','payment','adjustment') NOT NULL,
+  `currency` enum('IQD','USD') NOT NULL DEFAULT 'IQD',
+  `amount` decimal(15,2) NOT NULL,
+  `balance_after` decimal(15,2) NOT NULL,
+  `date` date NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `driver_transactions_date_index` (`date`),
+  KEY `driver_transactions_driver_id_foreign` (`driver_id`),
+  KEY `driver_transactions_driver_trip_log_id_foreign` (`driver_trip_log_id`),
+  KEY `driver_transactions_expense_id_foreign` (`expense_id`),
+  KEY `driver_transactions_user_id_foreign` (`user_id`),
+  CONSTRAINT `driver_transactions_driver_id_foreign` FOREIGN KEY (`driver_id`) REFERENCES `drivers` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `driver_transactions_driver_trip_log_id_foreign` FOREIGN KEY (`driver_trip_log_id`) REFERENCES `driver_trip_logs` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `driver_transactions_expense_id_foreign` FOREIGN KEY (`expense_id`) REFERENCES `expenses` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `driver_transactions_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- expenses.driver_trip_log_id column (idempotent) + FK
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='expenses' AND COLUMN_NAME='driver_trip_log_id');
+SET @s := IF(@c=0,'ALTER TABLE `expenses` ADD COLUMN `driver_trip_log_id` BIGINT UNSIGNED NULL AFTER `project_id`, ADD KEY `expenses_driver_trip_log_id_index` (`driver_trip_log_id`)','SELECT 1');
+PREPARE stmt FROM @s; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.TABLE_CONSTRAINTS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='expenses' AND CONSTRAINT_NAME='expenses_driver_trip_log_id_foreign');
+SET @s := IF(@c=0,'ALTER TABLE `expenses` ADD CONSTRAINT `expenses_driver_trip_log_id_foreign` FOREIGN KEY (`driver_trip_log_id`) REFERENCES `driver_trip_logs` (`id`) ON DELETE SET NULL','SELECT 1');
+PREPARE stmt FROM @s; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+-- ---------------------------------------------------------------------
 -- Mark the new migrations as applied (INSERT IGNORE = safe to re-run)
 -- so a later `php artisan migrate` does not try to re-create them.
 -- ---------------------------------------------------------------------
@@ -297,6 +406,11 @@ FROM (
   UNION ALL SELECT '2026_06_17_000007_extend_purchases_for_currency_and_deliverer'
   UNION ALL SELECT '2026_06_17_000008_create_workers_table'
   UNION ALL SELECT '2026_06_17_000009_create_labor_payments_table'
+  UNION ALL SELECT '2026_06_18_000001_create_drivers_table'
+  UNION ALL SELECT '2026_06_18_000002_create_driver_trip_logs_table'
+  UNION ALL SELECT '2026_06_18_000003_create_driver_trip_details_table'
+  UNION ALL SELECT '2026_06_18_000004_create_driver_transactions_table'
+  UNION ALL SELECT '2026_06_18_000005_add_driver_trip_log_id_to_expenses_table'
 ) AS v
 WHERE NOT EXISTS (
   SELECT 1 FROM (SELECT * FROM `migrations`) AS m2 WHERE m2.`migration` = v.migration

@@ -17,6 +17,7 @@ class User extends Authenticatable
         'trading'        => 'کڕین و فرۆشتن و کۆگا',
         'projects'       => 'پڕۆژەکان و تێچوون',
         'suppliers'      => 'دابینکەران و کڕینی وەسڵ',
+        'drivers'        => 'گواستنەوە و شۆفێر',
         'contractors'    => 'وەستا و بەڵێندەرایەتی',
         'labor'          => 'کرێی کار و کرێکاران',
         'reports'        => 'ڕاپۆرتەکان',

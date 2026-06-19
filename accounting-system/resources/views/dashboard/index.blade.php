@@ -44,6 +44,22 @@
             ],
         ],
         [
+            'title' => 'گواستنەوە و شۆفێر',
+            'show'  => $u->hasAccess('drivers'),
+            'accent' => 'from-amber-600 to-orange-700',
+            'icon' => '<path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/><path d="M3 4a1 1 0 00-1 1v8a1 1 0 001 1h.05a2.5 2.5 0 014.9 0h4.1a2.5 2.5 0 014.9 0H17a1 1 0 001-1v-2.382a1 1 0 00-.105-.447l-1.5-3A1 1 0 0015.5 6H13V5a1 1 0 00-1-1H3z"/>',
+            'items' => [
+                ['label' => 'تۆماری گواستنەوە', 'url' => route('driver-trip-logs.create'), 'show' => $u->hasAccess('drivers'),
+                 'icon' => '<path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/><path d="M3 4a1 1 0 00-1 1v8a1 1 0 001 1h.05a2.5 2.5 0 014.9 0h4.1a2.5 2.5 0 014.9 0H17a1 1 0 001-1v-2.382a1 1 0 00-.105-.447l-1.5-3A1 1 0 0015.5 6H13V5a1 1 0 00-1-1H3z"/>'],
+                ['label' => 'مێژووی گواستنەوەکان', 'url' => route('driver-trip-logs.index'), 'show' => $u->hasAccess('drivers'),
+                 'icon' => '<path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>'],
+                ['label' => 'شۆفێرەکان', 'url' => route('drivers.index'), 'show' => $u->hasAccess('drivers'),
+                 'icon' => '<path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>'],
+                ['label' => 'کەشف حساب', 'url' => route('drivers.statements'), 'show' => $u->hasAccess('drivers'),
+                 'icon' => '<path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>'],
+            ],
+        ],
+        [
             'title' => 'وەستا و بەڵێندەرایەتی',
             'show'  => $u->hasAccess('contractors'),
             'accent' => 'from-teal-600 to-teal-700',

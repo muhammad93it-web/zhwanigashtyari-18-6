@@ -36,7 +36,11 @@ return new class extends Migration
         });
 
         // Make supplier_id nullable (ad-hoc deliverers without a tracked account). FK-safe raw ALTER.
-        DB::statement('ALTER TABLE `purchase_invoices` MODIFY `supplier_id` BIGINT UNSIGNED NULL');
+        // Raw MODIFY is MySQL-specific; SQLite (dev) does not support it and creates the column
+        // nullable-friendly already, so guard by driver to keep `php artisan migrate` portable.
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE `purchase_invoices` MODIFY `supplier_id` BIGINT UNSIGNED NULL');
+        }
 
         Schema::table('purchase_invoice_details', function (Blueprint $table) {
             if (! Schema::hasColumn('purchase_invoice_details', 'currency')) {

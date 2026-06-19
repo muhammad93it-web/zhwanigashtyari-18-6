@@ -23,8 +23,18 @@ DB schema can change, and a new schema change must stay safe across ALL of them:
   `INSERT ... SELECT ... WHERE NOT EXISTS` guard (migrations table has no unique key,
   so plain INSERT IGNORE won't dedupe).
 
+**Rule for adding a FOREIGN KEY to an existing table:**
+- The SQL setup/upgrade files add the FK unconditionally (MySQL). The Laravel
+  migration must guard the FK with `DB::getDriverName() === 'mysql'` because SQLite
+  cannot `ALTER TABLE ... ADD FOREIGN KEY` (and doesn't enforce FKs by default) — an
+  unguarded `$table->foreign(...)` in a `Schema::table()` ALTER crashes dev SQLite.
+  FKs declared inline at CREATE time (`->constrained()`) are fine on both; only the
+  ALTER-ADD-FK case needs the guard. Otherwise the SQL paths gain a constraint the
+  migrate path silently lacks → lockstep drift.
+
 **Why:** missing any of the three lets one install path leave the DB in a state where
-another path errors out on the live site. Architect review caught exactly this gap.
+another path errors out on the live site. Architect review caught exactly this gap
+(both the column-add and the FK-add).
 
 **How to apply:** every time you add a migration that alters an existing table, touch
 all three files in lockstep and verify idempotency by running the migration's `up()`

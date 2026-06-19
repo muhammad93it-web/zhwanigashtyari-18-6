@@ -7,6 +7,8 @@ use App\Http\Controllers\ContractorPaymentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DebtController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\DriverController;
+use App\Http\Controllers\DriverTripLogController;
 use App\Http\Controllers\ExchangeRateController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\IncomeController;
@@ -77,6 +79,20 @@ Route::middleware('auth')->group(function () {
         Route::get('/purchase-invoices/{purchase_invoice}/print', [PurchaseInvoiceController::class, 'print'])->name('purchase-invoices.print');
         Route::get('/purchase-invoices/{purchase_invoice}/export-excel', [PurchaseInvoiceController::class, 'exportExcel'])->name('purchase-invoices.export-excel');
         Route::get('/purchase-invoices/{purchase_invoice}/export-word', [PurchaseInvoiceController::class, 'exportWord'])->name('purchase-invoices.export-word');
+    });
+
+    // ===== گواستنەوە و شۆفێر / Drivers & Transportation =====
+    Route::middleware('perm:drivers')->group(function () {
+        Route::get('/driver-statements', [DriverController::class, 'statements'])->name('drivers.statements');
+        Route::post('/driver-statements/go', [DriverController::class, 'statementGo'])->name('drivers.statement-go');
+        Route::get('/drivers/{driver}/statement/print', [DriverController::class, 'statementPrint'])->name('drivers.statement-print');
+        Route::get('/drivers/{driver}/statement/excel', [DriverController::class, 'statementExcel'])->name('drivers.statement-excel');
+        Route::get('/drivers/{driver}/statement/word', [DriverController::class, 'statementWord'])->name('drivers.statement-word');
+        Route::resource('drivers', DriverController::class);
+        Route::resource('driver-trip-logs', DriverTripLogController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
+        Route::get('/driver-trip-logs/{driver_trip_log}/print', [DriverTripLogController::class, 'print'])->name('driver-trip-logs.print');
+        Route::get('/driver-trip-logs/{driver_trip_log}/export-excel', [DriverTripLogController::class, 'exportExcel'])->name('driver-trip-logs.export-excel');
+        Route::get('/driver-trip-logs/{driver_trip_log}/export-word', [DriverTripLogController::class, 'exportWord'])->name('driver-trip-logs.export-word');
     });
 
     // ===== کرێی کار و کرێکاران / Labor =====
