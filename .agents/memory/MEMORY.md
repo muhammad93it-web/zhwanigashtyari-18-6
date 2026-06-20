@@ -9,4 +9,5 @@
 - [Jwani supplier ledger invariant](jwani-supplier-ledger-invariant.md) — each supplier_transactions row's balance_after must match its own signed type; reverse partial-paid purchases with two coherent rows + lock the invoice
 - [Jwani Replit preview](jwani-replit-preview.md) — PHP app preview via mockup-vite proxy bridge; artisan serve drops custom env vars; gate preview code on REPL_ID + replit.dev allowlist for live safety
 - [Jwani reset feature](jwani-reset-feature.md) — zero-out lives ONLY in admin Settings (PIN-hashed), keeps masters + recomputes stock/balances from ledger; assumes append-only ledgers
+- [Jwani letter editor](jwani-letter-editor.md) — letter print page is an inline WYSIWYG; text edits ephemeral, theme/logo persist in localStorage (per-browser), not DB
 - [Jwani Telegram dispatch due-check](jwani-telegram-scheduling.md) — fire on latest PAST occurrence (not current period) so late/down cron doesn't skip sends; clamp monthly day-of-month; manual send never touches last_sent_at

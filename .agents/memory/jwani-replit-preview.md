@@ -44,3 +44,7 @@ sqlite file. Login uses the seeder's default admin user/password.
 
 **ZIP hygiene:** if rebuilding the ZIP, ensure `database/*.sqlite`,
 `.replit-artifact/`, and the dev `.env` do not ship.
+
+# Static-file drop-in to screenshot a view 404s (server.php docroot mismatch)
+
+Don't prerender a Blade view to a `.html` in `public/` (or `public/jwani/`) to screenshot it through the proxy — it 404s. `server.php` does `if (file_exists(__DIR__.'/public'.$uri)) return false;`, but `php -S` runs with **no `-t`**, so its docroot is the PROJECT ROOT, not `public/`. On `return false` the built-in server serves `<project-root>/$uri` (nonexistent) → 404. Both `/x.html` and `/jwani/x.html` 404 even with the file in `public/`. To screenshot a view, add a temporary Laravel route, or just render offline and inspect/grep the HTML.
