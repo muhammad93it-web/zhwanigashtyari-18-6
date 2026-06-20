@@ -1,4 +1,4 @@
-@php $logoSrc = is_file(public_path('images/logo.png')) ? 'data:image/png;base64,'.base64_encode(file_get_contents(public_path('images/logo.png'))) : ''; @endphp
+@php $logoSrc = \App\Support\Branding::logoDataUri(); @endphp
 <!DOCTYPE html>
 <html lang="ku" dir="rtl" class="h-full" data-theme="green" data-font-scale="1">
 <head>

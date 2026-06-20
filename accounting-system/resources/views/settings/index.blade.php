@@ -181,6 +181,104 @@
         </div>
     </div>
 
+    {{-- ===== DATA RESET (zero-out) ===== --}}
+    <div class="card p-6 lg:col-span-2 border-2 border-red-200">
+        <div class="flex items-center gap-3 mb-5">
+            <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center flex-shrink-0">
+                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <div>
+                <h2 class="text-base font-bold text-slate-800">زیرۆکردنەوەی داتا</h2>
+                <p class="text-xs text-slate-500">سڕینەوەی مامەڵە و وەسڵ و پارەدانەکان — ناوە بنەڕەتییەکان (دابینکەر، کاڵا، شۆفێر، ...) دەمێننەوە</p>
+            </div>
+        </div>
+
+        <div class="bg-red-50 border border-red-200 rounded-lg p-3 mb-5 flex items-start gap-2">
+            <svg class="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+            <p class="text-xs text-red-700 font-medium">ئاگاداری: ئەم کارە گەڕاندنەوەی نییە. پێش ئەنجامدان باکئەپ بگرە. هەموو زیرۆکردنەوەیەک پێویستی بە PIN هەیە.</p>
+        </div>
+
+        {{-- PIN management --}}
+        <div class="bg-slate-50 rounded-xl p-4 mb-5">
+            <div class="flex items-center gap-2 mb-3">
+                <span class="text-sm font-bold text-slate-800">PIN ـی پاراستن</span>
+                @if($resetPinSet)
+                    <span class="text-[11px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">دانراوە</span>
+                @else
+                    <span class="text-[11px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold">دانەنراوە</span>
+                @endif
+            </div>
+            <form method="POST" action="{{ route('settings.reset.pin') }}" class="flex flex-col sm:flex-row gap-3 sm:items-end">
+                @csrf
+                <div class="flex-1">
+                    <label class="label">{{ $resetPinSet ? 'گۆڕینی PIN (٤ تا ٨ ژمارە)' : 'دانانی PIN نوێ (٤ تا ٨ ژمارە)' }}</label>
+                    <input type="password" name="pin" inputmode="numeric" pattern="\d{4,8}" maxlength="8"
+                           class="input-field" placeholder="••••" autocomplete="new-password" required>
+                    @error('pin') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+                <button type="submit" class="btn-primary justify-center whitespace-nowrap">پاشەکەوتی PIN</button>
+            </form>
+        </div>
+
+        @if($resetPinSet)
+            <p class="text-sm font-bold text-slate-700 mb-3">زیرۆکردنەوەی بەشەکان</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-5">
+                @foreach($resetSections as $key => $label)
+                    <button type="button" onclick="openReset('section', '{{ $key }}', '{{ $label }}')"
+                            class="flex items-center justify-between gap-2 px-4 py-3 rounded-lg border border-red-200 text-red-700 hover:bg-red-50 transition-colors text-sm font-semibold text-right">
+                        <span>{{ $label }}</span>
+                        <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                    </button>
+                @endforeach
+            </div>
+
+            <button type="button" onclick="openReset('master', '', 'هەموو بەشە دارایییەکان')"
+                    class="btn-danger w-full justify-center gap-2">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                زیرۆکردنەوەی گشتی (هەموو بەشەکان)
+            </button>
+        @else
+            <p class="text-sm text-slate-500 text-center py-2">یەکەم جار PIN دابنێ، پاشان دوگمەکانی زیرۆکردنەوە دەردەکەون.</p>
+        @endif
+    </div>
+
+</div>
+
+{{-- Hidden reset forms --}}
+<form method="POST" action="{{ route('settings.reset.section') }}" id="reset-section-form" class="hidden">
+    @csrf
+    <input type="hidden" name="section" id="reset-section-key">
+    <input type="hidden" name="pin" id="reset-section-pin">
+</form>
+<form method="POST" action="{{ route('settings.reset.master') }}" id="reset-master-form" class="hidden">
+    @csrf
+    <input type="hidden" name="pin" id="reset-master-pin">
+</form>
+
+{{-- Reset confirm + PIN modal --}}
+<div id="reset-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeReset()"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md animate-slide-in">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <h3 class="text-base font-bold text-slate-800">دڵنیابوون لە زیرۆکردنەوە</h3>
+        </div>
+        <p class="text-sm text-slate-600 mb-2">بەشی <span id="reset-modal-label" class="font-bold text-red-700"></span> زیرۆ دەکرێتەوە. ئەم کارە گەڕاندنەوەی نییە.</p>
+        <p class="text-xs text-slate-500 mb-4">بۆ پشتڕاستکردنەوە، PIN بنووسە:</p>
+        <input type="password" id="reset-pin-input" inputmode="numeric" maxlength="8" class="input-field mb-5" placeholder="PIN" autocomplete="off">
+        <div class="flex gap-3">
+            <button type="button" onclick="confirmReset()" class="btn-danger flex-1 justify-center">بەڵێ، زیرۆی بکەرەوە</button>
+            <button type="button" onclick="closeReset()" class="btn-outline flex-1 justify-center">نەخێر</button>
+        </div>
+    </div>
 </div>
 
 {{-- Confirm import modal --}}
@@ -228,6 +326,41 @@ function confirmImport() {
 function closeModal() {
     document.getElementById('confirm-modal').classList.add('hidden');
     document.getElementById('confirm-modal').classList.remove('flex');
+}
+
+/* Data reset flow */
+let resetTarget = { type: null, section: null };
+
+function openReset(type, section, label) {
+    resetTarget = { type: type, section: section };
+    document.getElementById('reset-modal-label').textContent = label;
+    document.getElementById('reset-pin-input').value = '';
+    const m = document.getElementById('reset-modal');
+    m.classList.remove('hidden');
+    m.classList.add('flex');
+    setTimeout(() => document.getElementById('reset-pin-input').focus(), 50);
+}
+
+function closeReset() {
+    const m = document.getElementById('reset-modal');
+    m.classList.add('hidden');
+    m.classList.remove('flex');
+}
+
+function confirmReset() {
+    const pin = document.getElementById('reset-pin-input').value.trim();
+    if (!pin) {
+        alert('تکایە PIN بنووسە.');
+        return;
+    }
+    if (resetTarget.type === 'master') {
+        document.getElementById('reset-master-pin').value = pin;
+        document.getElementById('reset-master-form').submit();
+    } else {
+        document.getElementById('reset-section-key').value = resetTarget.section;
+        document.getElementById('reset-section-pin').value = pin;
+        document.getElementById('reset-section-form').submit();
+    }
 }
 
 /* Palette Grid */

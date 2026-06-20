@@ -81,11 +81,6 @@ class LetterController extends Controller
 
     private function logoDataUri(): string
     {
-        $path = public_path('images/logo.png');
-        if (is_file($path)) {
-            return 'data:image/png;base64,' . base64_encode((string) file_get_contents($path));
-        }
-
-        return '';
+        return \App\Support\Branding::logoDataUri();
     }
 }

@@ -174,5 +174,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
         Route::get('/settings/backup', [SettingsController::class, 'downloadBackup'])->name('settings.backup.download');
         Route::post('/settings/backup/import', [SettingsController::class, 'importBackup'])->name('settings.backup.import');
+        // زیرۆکردنەوەی داتا / Data reset (admin only, PIN-gated)
+        Route::post('/settings/reset-pin', [SettingsController::class, 'saveResetPin'])->name('settings.reset.pin');
+        Route::post('/settings/reset/section', [SettingsController::class, 'resetSection'])->name('settings.reset.section');
+        Route::post('/settings/reset/master', [SettingsController::class, 'resetMaster'])->name('settings.reset.master');
     });
 });

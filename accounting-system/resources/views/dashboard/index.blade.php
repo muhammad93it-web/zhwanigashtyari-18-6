@@ -145,8 +145,7 @@
         }
     }
 
-    $logoPath = public_path('images/logo.png');
-    $logoSrc = is_file($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : '';
+    $logoSrc = \App\Support\Branding::logoDataUri();
 @endphp
 
 {{-- ناونیشانی ناوەڕاست: لۆگۆ + هێڵ + ناوی سیستەم --}}

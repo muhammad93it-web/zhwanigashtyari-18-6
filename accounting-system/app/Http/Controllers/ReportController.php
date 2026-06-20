@@ -175,8 +175,14 @@ class ReportController extends Controller
         $fromDate = $request->get('from_date', now()->startOfMonth()->format('Y-m-d'));
         $toDate   = $request->get('to_date', now()->format('Y-m-d'));
 
-        $results  = collect();
-        $totals   = ['iqd' => 0.0, 'usd' => 0.0, 'count' => 0];
+        $results = collect();
+        $totals  = ['iqd' => 0.0, 'usd' => 0.0, 'count' => 0];
+
+        /** @var \Illuminate\Database\Eloquent\Builder|null $q */
+        $q       = null;
+        $dateCol = null;
+        $iqdCol  = 'amount_iqd';
+        $usdCol  = 'amount_usd';
 
         switch ($section) {
 
@@ -186,8 +192,7 @@ class ReportController extends Controller
                 if ($request->filled('search'))
                     $q->where(fn($qq) => $qq->where('source', 'like', '%' . $request->search . '%')
                         ->orWhere('category', 'like', '%' . $request->search . '%'));
-                $results = $q->orderByDesc('income_date')->get();
-                $totals  = ['iqd' => $results->sum('amount_iqd'), 'usd' => $results->sum('amount_usd'), 'count' => $results->count()];
+                $dateCol = 'income_date';
                 break;
 
             case 'expenses':
@@ -199,8 +204,7 @@ class ReportController extends Controller
                         ->orWhere('description', 'like', '%' . $request->search . '%'));
                 if ($request->filled('project_id'))
                     $q->where('project_id', $request->project_id);
-                $results = $q->orderByDesc('expense_date')->get();
-                $totals  = ['iqd' => $results->sum('amount_iqd'), 'usd' => $results->sum('amount_usd'), 'count' => $results->count()];
+                $dateCol = 'expense_date';
                 break;
 
             case 'material_purchases':
@@ -211,8 +215,7 @@ class ReportController extends Controller
                     $q->where('material_id', $request->material_id);
                 if ($request->filled('search'))
                     $q->where('party_name', 'like', '%' . $request->search . '%');
-                $results = $q->orderByDesc('movement_date')->get();
-                $totals  = ['iqd' => $results->sum('amount_iqd'), 'usd' => $results->sum('amount_usd'), 'count' => $results->count()];
+                $dateCol = 'movement_date';
                 break;
 
             case 'material_sales':
@@ -223,8 +226,7 @@ class ReportController extends Controller
                     $q->where('material_id', $request->material_id);
                 if ($request->filled('search'))
                     $q->where('party_name', 'like', '%' . $request->search . '%');
-                $results = $q->orderByDesc('movement_date')->get();
-                $totals  = ['iqd' => $results->sum('amount_iqd'), 'usd' => $results->sum('amount_usd'), 'count' => $results->count()];
+                $dateCol = 'movement_date';
                 break;
 
             case 'purchase_invoices':
@@ -237,8 +239,9 @@ class ReportController extends Controller
                 if ($request->filled('search'))
                     $q->where(fn($qq) => $qq->where('deliverer_name', 'like', '%' . $request->search . '%')
                         ->orWhere('notes', 'like', '%' . $request->search . '%'));
-                $results = $q->orderByDesc('date')->get();
-                $totals  = ['iqd' => $results->sum('total_iqd'), 'usd' => $results->sum('total_usd'), 'count' => $results->count()];
+                $dateCol = 'date';
+                $iqdCol  = 'total_iqd';
+                $usdCol  = 'total_usd';
                 break;
 
             case 'contractor_payments':
@@ -248,8 +251,7 @@ class ReportController extends Controller
                     $q->where('contractor_id', $request->contractor_id);
                 if ($request->filled('search'))
                     $q->where('description', 'like', '%' . $request->search . '%');
-                $results = $q->orderByDesc('payment_date')->get();
-                $totals  = ['iqd' => $results->sum('amount_iqd'), 'usd' => $results->sum('amount_usd'), 'count' => $results->count()];
+                $dateCol = 'payment_date';
                 break;
 
             case 'labor_payments':
@@ -262,9 +264,10 @@ class ReportController extends Controller
                 if ($request->filled('search'))
                     $q->where(fn($qq) => $qq->where('worker_name', 'like', '%' . $request->search . '%')
                         ->orWhere('role', 'like', '%' . $request->search . '%'));
-                $results = $q->orderByDesc('date')->get();
-                $totals  = ['iqd' => 0, 'usd' => 0, 'count' => $results->count()];
-                // labor_payments don't have amount_iqd — just amount + currency
+                $dateCol = 'date';
+                // labor_payments don't have amount_iqd/amount_usd — just amount + currency
+                $iqdCol  = null;
+                $usdCol  = null;
                 break;
 
             case 'transactions':
@@ -277,9 +280,25 @@ class ReportController extends Controller
                 if ($request->filled('search'))
                     $q->where(fn($qq) => $qq->where('description', 'like', '%' . $request->search . '%')
                         ->orWhere('reference_number', 'like', '%' . $request->search . '%'));
-                $results = $q->orderByDesc('transaction_date')->get();
-                $totals  = ['iqd' => $results->sum('amount_iqd'), 'usd' => $results->sum('amount_usd'), 'count' => $results->count()];
+                $dateCol = 'transaction_date';
                 break;
+        }
+
+        if ($q) {
+            // Totals via SQL aggregate over the FULL filtered set (not just the page).
+            if ($iqdCol) {
+                $agg = (clone $q)->setEagerLoads([])
+                    ->selectRaw("SUM($iqdCol) iqd, SUM($usdCol) usd, COUNT(*) c")->first();
+                $totals = [
+                    'iqd'   => (float) ($agg->iqd ?? 0),
+                    'usd'   => (float) ($agg->usd ?? 0),
+                    'count' => (int) ($agg->c ?? 0),
+                ];
+            } else {
+                $totals = ['iqd' => 0.0, 'usd' => 0.0, 'count' => (clone $q)->setEagerLoads([])->count()];
+            }
+
+            $results = $q->orderByDesc($dateCol)->paginate(50)->withQueryString();
         }
 
         $filterOptions = [

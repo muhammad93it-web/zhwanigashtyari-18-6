@@ -32,3 +32,11 @@ Two traps that silently break the curl login flow (both cost real time):
 - `rg -c "<phrase>"` over rendered HTML also matches the phrase inside HTML comments. The back-button comment `<!-- ... گەڕانەوە بۆ بەشەکان ... -->` is always present, so assert on the real anchor (`title="..."`/`href`), not the bare phrase.
 
 Login form posts `user_id` (dropdown value = raw id) + `password` + `_token`; success 302s to the proxy `/jwani`, failure 302s to `127.0.0.1:5000/login`.
+
+# Point a kernel-boot test at a throwaway DB without touching dev
+
+Override the connection AFTER bootstrap, don't fight `.env`: `config(['database.default'=>'sqlite','database.connections.sqlite.database'=>'/tmp/x.sqlite'])` then `DB::purge('sqlite'); DB::reconnect('sqlite');` then `Artisan::call('migrate:fresh',['--force'=>true])`. This keeps the real `database/database.sqlite` untouched. Also `@unlink('bootstrap/cache/config.php')` before boot so a cached config can't pin the old connection.
+
+# Generic introspection seeders trip on CHECK + UNIQUE
+
+A `PRAGMA table_info`-driven auto-seeder (fill every NOT-NULL-without-default column) breaks two ways on real Jwani tables: (1) enum CHECK constraints — `supplier_transactions.type` ∈ {purchase,payment}, `material_movements.type` ∈ {purchase,sale} — a dummy string fails the CHECK, so pass valid enum values explicitly; (2) UNIQUE columns (e.g. `material_movements.reference_number`) collide when two rows get the same dummy — give string dummies a per-row unique suffix. Seed with `PRAGMA foreign_keys=OFF` to avoid FK ordering pain when you only care about recompute math.

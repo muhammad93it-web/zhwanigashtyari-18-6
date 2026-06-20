@@ -439,6 +439,25 @@
             @endif
         </table>
     </div>
+
+    @if($results instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator && $results->hasPages())
+    <div class="flex items-center justify-between gap-3 px-4 py-3 border-t border-slate-100 no-print">
+        <div class="text-xs text-slate-500">پیشاندانی {{ $results->firstItem() }}–{{ $results->lastItem() }} لە کۆی {{ $results->total() }}</div>
+        <div class="flex items-center gap-1">
+            @if($results->onFirstPage())
+                <span class="px-3 py-1.5 rounded-lg text-xs text-slate-300 border border-slate-100 cursor-not-allowed">پێشوو</span>
+            @else
+                <a href="{{ $results->previousPageUrl() }}" class="px-3 py-1.5 rounded-lg text-xs text-slate-600 border border-slate-200 hover:bg-slate-50">پێشوو</a>
+            @endif
+            <span class="px-3 py-1.5 text-xs text-slate-500">لاپەڕە {{ $results->currentPage() }} / {{ $results->lastPage() }}</span>
+            @if($results->hasMorePages())
+                <a href="{{ $results->nextPageUrl() }}" class="px-3 py-1.5 rounded-lg text-xs text-slate-600 border border-slate-200 hover:bg-slate-50">دواتر</a>
+            @else
+                <span class="px-3 py-1.5 rounded-lg text-xs text-slate-300 border border-slate-100 cursor-not-allowed">دواتر</span>
+            @endif
+        </div>
+    </div>
+    @endif
     @endif
 </div>
 

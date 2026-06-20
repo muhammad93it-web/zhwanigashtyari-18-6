@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AppSetting;
 use App\Services\BackupService;
+use App\Services\ResetService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class SettingsController extends Controller
 {
@@ -30,7 +33,75 @@ class SettingsController extends Controller
 
         $driverLabel = $driver === 'sqlite' ? 'SQLite' : 'MySQL';
 
-        return view('settings.index', compact('dbExists', 'dbSizeMb', 'dbModified', 'driver', 'driverLabel'));
+        $resetPinSet = (string) AppSetting::get('reset_pin', '') !== '';
+        $resetSections = ResetService::SECTIONS;
+
+        return view('settings.index', compact(
+            'dbExists', 'dbSizeMb', 'dbModified', 'driver', 'driverLabel',
+            'resetPinSet', 'resetSections'
+        ));
+    }
+
+    /** دانان/گۆڕینی PIN ـی زیرۆکردنەوە. بە شێوەی hash هەڵدەگیرێت. */
+    public function saveResetPin(Request $request)
+    {
+        $request->validate([
+            'pin' => ['required', 'string', 'regex:/^\d{4,8}$/'],
+        ], [
+            'pin.required' => 'تکایە PIN بنووسە.',
+            'pin.regex'    => 'PIN دەبێت لە ٤ بۆ ٨ ژمارە بێت.',
+        ]);
+
+        AppSetting::set('reset_pin', Hash::make($request->input('pin')));
+
+        return back()->with('success', 'PIN ـی زیرۆکردنەوە پاشەکەوت کرا.');
+    }
+
+    /** زیرۆکردنەوەی یەک بەش. */
+    public function resetSection(Request $request, ResetService $reset)
+    {
+        $request->validate([
+            'section' => ['required', 'string'],
+            'pin'     => ['required', 'string'],
+        ]);
+
+        $section = $request->input('section');
+
+        if (! ResetService::isValidSection($section)) {
+            return back()->with('error', 'بەشی هەڵبژێردراو نادروستە.');
+        }
+
+        if (! $this->verifyResetPin($request->input('pin'))) {
+            return back()->with('error', 'PIN هەڵەیە. زیرۆکردنەوە ئەنجام نەدرا.');
+        }
+
+        $reset->resetSection($section);
+
+        return back()->with('success', 'بەشی «' . ResetService::SECTIONS[$section] . '» بە سەرکەوتوویی زیرۆ کرایەوە.');
+    }
+
+    /** زیرۆکردنەوەی گشتی. */
+    public function resetMaster(Request $request, ResetService $reset)
+    {
+        $request->validate([
+            'pin' => ['required', 'string'],
+        ]);
+
+        if (! $this->verifyResetPin($request->input('pin'))) {
+            return back()->with('error', 'PIN هەڵەیە. زیرۆکردنەوە ئەنجام نەدرا.');
+        }
+
+        $reset->resetMaster();
+
+        return back()->with('success', 'هەموو بەشە دارایییەکان بە سەرکەوتوویی زیرۆ کرانەوە. ناوە بنەڕەتییەکان ماونەتەوە.');
+    }
+
+    /** پشکنینی PIN لە لای سێرڤەر. */
+    private function verifyResetPin(string $pin): bool
+    {
+        $stored = (string) AppSetting::get('reset_pin', '');
+
+        return $stored !== '' && Hash::check($pin, $stored);
     }
 
     public function downloadBackup(BackupService $backup)
