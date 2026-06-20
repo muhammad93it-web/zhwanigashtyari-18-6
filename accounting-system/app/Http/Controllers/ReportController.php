@@ -453,13 +453,15 @@ class ReportController extends Controller
                     ->when($request->filled('worker_id'), fn($q) => $q->where('worker_id', $request->worker_id))
                     ->when($request->filled('project_id'), fn($q) => $q->where('project_id', $request->project_id))
                     ->orderByDesc('date')->get();
-                $headings = ['بەروار', 'کرێکار', 'ڕۆڵ', 'پڕۆژە', 'کاتژمێر', 'بڕ', 'دراو'];
+                $headings = ['بەروار', 'کرێکار', 'ڕۆڵ', 'پڕۆژە', 'شێواز', 'کاتژمێر', 'ڕۆژ', 'بڕ', 'دراو'];
                 $columns  = [
                     fn($r) => $r->date->format('Y-m-d'),
                     fn($r) => $r->worker?->name ?? $r->worker_name ?? '—',
                     fn($r) => $r->role ?? '—',
                     fn($r) => $r->project?->name ?? '—',
-                    fn($r) => $r->is_hourly ? $fmt_usd($r->hours) : '—',
+                    fn($r) => ($r->payment_mode ?? ($r->is_hourly ? 'hourly' : 'fixed')) === 'hourly' ? 'کاتژمێری' : (($r->payment_mode ?? '') === 'daily' ? 'ڕۆژانە' : 'جێگیر'),
+                    fn($r) => ($r->payment_mode ?? ($r->is_hourly ? 'hourly' : 'fixed')) === 'hourly' ? $fmt_usd($r->hours) : '—',
+                    fn($r) => ($r->payment_mode ?? '') === 'daily' ? $fmt_usd($r->days) : '—',
                     fn($r) => $fmt_usd($r->amount),
                     fn($r) => $r->currency,
                 ];

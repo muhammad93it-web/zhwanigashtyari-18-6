@@ -25,6 +25,13 @@ class PurchaseInvoiceController extends Controller
         if ($request->filled('supplier_id')) {
             $query->where('supplier_id', $request->supplier_id);
         }
+        if ($request->filled('search')) {
+            $term = '%' . $request->search . '%';
+            $query->where(function ($q) use ($term) {
+                $q->where('incoming_invoice_number', 'like', $term)
+                  ->orWhere('deliverer_name', 'like', $term);
+            });
+        }
         if ($request->filled('from_date')) {
             $query->whereDate('date', '>=', $request->from_date);
         }
@@ -68,6 +75,7 @@ class PurchaseInvoiceController extends Controller
 
         DB::transaction(function () use ($data, $totalIqd, $totalUsd, $paidIqd, $paidUsd) {
             $invoice = PurchaseInvoice::create([
+                'incoming_invoice_number' => $data['incoming_invoice_number'] ?? null,
                 'supplier_id'      => $data['supplier_id'] ?? null,
                 'deliverer_name'   => $data['deliverer_name'] ?? null,
                 'deliverer_phone'  => $data['deliverer_phone'] ?? null,
@@ -152,6 +160,7 @@ class PurchaseInvoiceController extends Controller
             $invoice->details()->delete();
 
             $invoice->update([
+                'incoming_invoice_number' => $data['incoming_invoice_number'] ?? null,
                 'supplier_id'      => $data['supplier_id'] ?? null,
                 'deliverer_name'   => $data['deliverer_name'] ?? null,
                 'deliverer_phone'  => $data['deliverer_phone'] ?? null,
@@ -263,6 +272,7 @@ class PurchaseInvoiceController extends Controller
     private function validateInvoice(Request $request): array
     {
         $data = $request->validate([
+            'incoming_invoice_number' => 'nullable|string|max:255',
             'supplier_id'         => 'nullable|exists:suppliers,id',
             'deliverer_name'      => 'nullable|string|max:255',
             'deliverer_phone'     => 'nullable|string|max:255',

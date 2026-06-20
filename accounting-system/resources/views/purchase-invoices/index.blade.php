@@ -30,7 +30,11 @@
     </div>
 </div>
 
-<form method="GET" action="{{ route('purchase-invoices.index') }}" class="card p-4 mb-4 grid grid-cols-1 sm:grid-cols-4 gap-3">
+<form method="GET" action="{{ route('purchase-invoices.index') }}" class="card p-4 mb-4 grid grid-cols-1 sm:grid-cols-5 gap-3">
+    <div>
+        <label class="label">گەڕان (ژمارەی وەسڵی هاتوو / گەیەنەر)</label>
+        <input type="text" name="search" value="{{ request('search') }}" class="input-field" placeholder="ژمارەی وەسڵی هاتوو...">
+    </div>
     <div>
         <label class="label">دابینکەر</label>
         <select name="supplier_id" class="input-field">
@@ -60,6 +64,7 @@
             <thead>
                 <tr class="text-right text-xs text-slate-500 border-b border-slate-200">
                     <th class="px-4 py-3 font-semibold">#</th>
+                    <th class="px-4 py-3 font-semibold">ژمارەی وەسڵی هاتوو</th>
                     <th class="px-4 py-3 font-semibold">دابینکەر / گەیەنەر</th>
                     <th class="px-4 py-3 font-semibold">پڕۆژە</th>
                     <th class="px-4 py-3 font-semibold">بەروار</th>
@@ -73,6 +78,7 @@
                 @forelse($invoices as $inv)
                     <tr class="table-row">
                         <td class="px-4 py-3 font-semibold text-slate-800">#{{ $inv->id }}</td>
+                        <td class="px-4 py-3 text-slate-600">{{ $inv->incoming_invoice_number ?? '—' }}</td>
                         <td class="px-4 py-3 text-slate-700">{{ $inv->party_name }}</td>
                         <td class="px-4 py-3 text-slate-600">{{ $inv->project->name ?? '—' }}</td>
                         <td class="px-4 py-3 text-slate-500">{{ optional($inv->date)->format('Y-m-d') }}</td>
@@ -98,7 +104,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="8" class="px-4 py-10 text-center text-slate-400">هیچ کڕینێک نییە.</td></tr>
+                    <tr><td colspan="9" class="px-4 py-10 text-center text-slate-400">هیچ کڕینێک نییە.</td></tr>
                 @endforelse
             </tbody>
         </table>

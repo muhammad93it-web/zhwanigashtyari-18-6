@@ -83,32 +83,45 @@ class LaborPaymentController extends Controller
     private function validatePayment(Request $request): array
     {
         return $request->validate([
-            'worker_id'   => 'nullable|exists:workers,id',
-            'worker_name' => 'nullable|string|max:255',
-            'role'        => 'nullable|string|max:255',
-            'project_id'  => 'nullable|exists:projects,id',
-            'date'        => 'required|date',
-            'is_hourly'   => 'nullable|boolean',
-            'hours'       => 'nullable|numeric|min:0',
-            'hourly_rate' => 'nullable|numeric|min:0',
-            'amount'      => 'nullable|numeric|min:0',
-            'currency'    => 'required|in:IQD,USD',
-            'notes'       => 'nullable|string|max:1000',
+            'worker_id'    => 'nullable|exists:workers,id',
+            'worker_name'  => 'nullable|string|max:255',
+            'role'         => 'nullable|string|max:255',
+            'project_id'   => 'nullable|exists:projects,id',
+            'date'         => 'required|date',
+            'payment_mode' => 'required|in:fixed,hourly,daily',
+            'hours'        => 'nullable|numeric|min:0',
+            'days'         => 'nullable|numeric|min:0',
+            'hourly_rate'  => 'nullable|numeric|min:0',
+            'daily_rate'   => 'nullable|numeric|min:0',
+            'amount'       => 'nullable|numeric|min:0',
+            'currency'     => 'required|in:IQD,USD',
+            'notes'        => 'nullable|string|max:1000',
         ]);
     }
 
     private function prepare(array $data): array
     {
-        $isHourly = !empty($data['is_hourly']);
-        $data['is_hourly'] = $isHourly;
+        $mode = $data['payment_mode'] ?? 'fixed';
+        // Keep legacy is_hourly in sync for backward-compatible reads.
+        $data['is_hourly'] = $mode === 'hourly';
 
-        if ($isHourly) {
+        if ($mode === 'hourly') {
             $hours = (float) ($data['hours'] ?? 0);
             $rate = (float) ($data['hourly_rate'] ?? 0);
             $data['amount'] = round($hours * $rate, 2);
+            $data['days'] = null;
+            $data['daily_rate'] = null;
+        } elseif ($mode === 'daily') {
+            $days = (float) ($data['days'] ?? 0);
+            $rate = (float) ($data['daily_rate'] ?? 0);
+            $data['amount'] = round($days * $rate, 2);
+            $data['hours'] = null;
+            $data['hourly_rate'] = null;
         } else {
             $data['hours'] = null;
             $data['hourly_rate'] = null;
+            $data['days'] = null;
+            $data['daily_rate'] = null;
             $data['amount'] = (float) ($data['amount'] ?? 0);
         }
 

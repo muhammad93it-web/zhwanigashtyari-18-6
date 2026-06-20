@@ -342,6 +342,26 @@ CREATE TABLE IF NOT EXISTS `documents` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------
+-- letters (نووسراوی فەرمی — لێتەرهێد A4)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `letters` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint unsigned DEFAULT NULL,
+  `reference_number` varchar(255) NOT NULL,
+  `letter_date` date NOT NULL,
+  `recipient` varchar(255) DEFAULT NULL,
+  `subject` varchar(255) DEFAULT NULL,
+  `body` text,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `letters_reference_number_index` (`reference_number`),
+  KEY `letters_letter_date_index` (`letter_date`),
+  KEY `letters_user_id_foreign` (`user_id`),
+  CONSTRAINT `letters_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
 -- projects (پڕۆژە/بینا)
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `projects` (
@@ -413,6 +433,7 @@ CREATE TABLE IF NOT EXISTS `supplier_transactions` (
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `purchase_invoices` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `incoming_invoice_number` varchar(255) DEFAULT NULL,
   `supplier_id` bigint unsigned DEFAULT NULL,
   `deliverer_name` varchar(255) DEFAULT NULL,
   `deliverer_phone` varchar(255) DEFAULT NULL,
@@ -436,6 +457,7 @@ CREATE TABLE IF NOT EXISTS `purchase_invoices` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `purchase_invoices_date_index` (`date`),
+  KEY `purchase_invoices_incoming_invoice_number_index` (`incoming_invoice_number`),
   KEY `purchase_invoices_supplier_id_foreign` (`supplier_id`),
   KEY `purchase_invoices_user_id_foreign` (`user_id`),
   KEY `purchase_invoices_project_id_foreign` (`project_id`),
@@ -500,8 +522,11 @@ CREATE TABLE IF NOT EXISTS `labor_payments` (
   `role` varchar(255) DEFAULT NULL,
   `date` date NOT NULL,
   `is_hourly` tinyint(1) NOT NULL DEFAULT '1',
+  `payment_mode` varchar(20) NOT NULL DEFAULT 'hourly',
   `hours` decimal(10,2) DEFAULT NULL,
+  `days` decimal(10,2) DEFAULT NULL,
   `hourly_rate` decimal(15,2) DEFAULT NULL,
+  `daily_rate` decimal(15,2) DEFAULT NULL,
   `amount` decimal(15,2) NOT NULL,
   `currency` enum('IQD','USD') NOT NULL DEFAULT 'IQD',
   `notes` text,
@@ -707,7 +732,9 @@ INSERT INTO `migrations` (`migration`, `batch`) VALUES
   ('2026_06_18_000005_add_driver_trip_log_id_to_expenses_table', 1),
   ('2026_06_19_000001_create_app_settings_table', 1),
   ('2026_06_19_000002_create_telegram_schedules_table', 1),
-  ('2026_06_19_000003_create_telegram_delivery_logs_table', 1);
+  ('2026_06_19_000003_create_telegram_delivery_logs_table', 1),
+  ('2026_06_20_000001_add_letterhead_receipt_and_wage_fields', 1),
+  ('2026_06_20_000002_create_letters_table', 1);
 
 -- Admin user  (login: admin@jwani.com  /  password)
 INSERT INTO `users` (`name`, `email`, `password`, `is_admin`, `created_at`, `updated_at`) VALUES

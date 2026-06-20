@@ -8,14 +8,17 @@ class LaborPayment extends Model
 {
     protected $fillable = [
         'user_id', 'project_id', 'worker_id', 'worker_name', 'role',
-        'date', 'is_hourly', 'hours', 'hourly_rate', 'amount', 'currency', 'notes',
+        'date', 'is_hourly', 'payment_mode', 'hours', 'days', 'hourly_rate', 'daily_rate',
+        'amount', 'currency', 'notes',
     ];
 
     protected $casts = [
         'date' => 'date',
         'is_hourly' => 'boolean',
         'hours' => 'decimal:2',
+        'days' => 'decimal:2',
         'hourly_rate' => 'decimal:2',
+        'daily_rate' => 'decimal:2',
         'amount' => 'decimal:2',
     ];
 

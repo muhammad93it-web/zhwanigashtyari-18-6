@@ -60,7 +60,7 @@
                     <th class="px-4 py-3 font-semibold">پیشە</th>
                     <th class="px-4 py-3 font-semibold">پڕۆژە</th>
                     <th class="px-4 py-3 font-semibold">جۆر</th>
-                    <th class="px-4 py-3 font-semibold">کاتژمێر × کرێ</th>
+                    <th class="px-4 py-3 font-semibold">حیساب</th>
                     <th class="px-4 py-3 font-semibold">بڕ</th>
                     <th class="px-4 py-3 font-semibold">کردارەکان</th>
                 </tr>
@@ -72,8 +72,17 @@
                         <td class="px-4 py-3 font-semibold text-slate-800">{{ $p->worker->name ?? $p->worker_name ?? '—' }}</td>
                         <td class="px-4 py-3 text-slate-600">{{ $p->role ?? '—' }}</td>
                         <td class="px-4 py-3 text-slate-600">{{ $p->project->name ?? '—' }}</td>
-                        <td class="px-4 py-3">@if($p->is_hourly)<span class="badge-cyan">کاتژمێری</span>@else<span class="badge-slate">جێگیر</span>@endif</td>
-                        <td class="px-4 py-3 text-slate-600">{{ $p->is_hourly ? rtrim(rtrim(number_format((float)$p->hours,2),'0'),'.') . ' × ' . $num($p->hourly_rate) : '—' }}</td>
+                        @php $pmode = $p->payment_mode ?? ($p->is_hourly ? 'hourly' : 'fixed'); @endphp
+                        <td class="px-4 py-3">
+                            @if($pmode === 'hourly')<span class="badge-cyan">کاتژمێری</span>
+                            @elseif($pmode === 'daily')<span class="badge-green">ڕۆژانە</span>
+                            @else<span class="badge-slate">جێگیر</span>@endif
+                        </td>
+                        <td class="px-4 py-3 text-slate-600">
+                            @if($pmode === 'hourly'){{ rtrim(rtrim(number_format((float)$p->hours,2),'0'),'.') }} کتژ × {{ $num($p->hourly_rate) }}
+                            @elseif($pmode === 'daily'){{ rtrim(rtrim(number_format((float)$p->days,2),'0'),'.') }} ڕۆژ × {{ $num($p->daily_rate) }}
+                            @else —@endif
+                        </td>
                         <td class="px-4 py-3 font-semibold text-slate-800">{{ $num($p->amount) }} {{ $p->currency === 'USD' ? '$' : 'د.ع' }}</td>
                         <td class="px-4 py-3">
                             <div class="flex items-center gap-1.5">

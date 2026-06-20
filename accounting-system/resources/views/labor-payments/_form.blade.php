@@ -56,25 +56,38 @@
         </div>
     </div>
 
+    @php $mode = old('payment_mode', $payment->payment_mode ?? ($payment && !($payment->is_hourly) ? 'fixed' : 'hourly')); @endphp
     <div class="card p-4 bg-slate-50">
-        <label class="flex items-center gap-2 mb-3">
-            <input type="checkbox" name="is_hourly" id="isHourly" value="1" {{ old('is_hourly', $payment->is_hourly ?? false) ? 'checked' : '' }} class="w-4 h-4 rounded border-slate-300 text-green-600 focus:ring-green-500">
-            <span class="text-sm font-semibold text-slate-700">حیسابی کاتژمێری (کاتژمێر × کرێی کاتژمێر)</span>
-        </label>
+        <div class="mb-3">
+            <label class="label">شێوازی پارەدان *</label>
+            <select name="payment_mode" id="paymentMode" class="input-field">
+                <option value="fixed" @selected($mode==='fixed')>بڕی جێگیر (دەستی)</option>
+                <option value="hourly" @selected($mode==='hourly')>کاتژمێری (کاتژمێر × کرێی کاتژمێر)</option>
+                <option value="daily" @selected($mode==='daily')>ڕۆژانە (ڕۆژ × کرێی ڕۆژانە)</option>
+            </select>
+        </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div id="hoursWrap">
                 <label class="label">ژمارەی کاتژمێر</label>
                 <input type="number" step="0.01" name="hours" id="hoursInput" value="{{ old('hours', $payment->hours ?? '') }}" class="input-field" oninput="calcAmount()">
             </div>
-            <div id="rateWrap">
+            <div id="hourlyRateWrap">
                 <label class="label">کرێی کاتژمێر</label>
-                <input type="number" step="0.01" name="hourly_rate" id="rateInput" value="{{ old('hourly_rate', $payment->hourly_rate ?? '') }}" class="input-field" oninput="calcAmount()">
+                <input type="number" step="0.01" name="hourly_rate" id="hourlyRateInput" value="{{ old('hourly_rate', $payment->hourly_rate ?? '') }}" class="input-field" oninput="calcAmount()">
+            </div>
+            <div id="daysWrap">
+                <label class="label">ژمارەی ڕۆژ</label>
+                <input type="number" step="0.01" name="days" id="daysInput" value="{{ old('days', $payment->days ?? '') }}" class="input-field" oninput="calcAmount()">
+            </div>
+            <div id="dailyRateWrap">
+                <label class="label">کرێی ڕۆژانە</label>
+                <input type="number" step="0.01" name="daily_rate" id="dailyRateInput" value="{{ old('daily_rate', $payment->daily_rate ?? '') }}" class="input-field" oninput="calcAmount()">
             </div>
             <div>
                 <label class="label">بڕی گشتی *</label>
                 <input type="number" step="0.01" name="amount" id="amountInput" value="{{ old('amount', $payment->amount ?? '') }}" class="input-field">
-                <p class="text-xs text-slate-400 mt-1" id="amountHint">لە دۆخی کاتژمێری خۆکارانە حیسابدەکرێت.</p>
+                <p class="text-xs text-slate-400 mt-1" id="amountHint">لە دۆخی کاتژمێری/ڕۆژانە خۆکارانە حیسابدەکرێت.</p>
             </div>
         </div>
     </div>
@@ -92,29 +105,44 @@
 
 @push('scripts')
 <script>
-    const isHourly = document.getElementById('isHourly');
+    const paymentMode = document.getElementById('paymentMode');
     const hoursInput = document.getElementById('hoursInput');
-    const rateInput = document.getElementById('rateInput');
+    const hourlyRateInput = document.getElementById('hourlyRateInput');
+    const daysInput = document.getElementById('daysInput');
+    const dailyRateInput = document.getElementById('dailyRateInput');
     const amountInput = document.getElementById('amountInput');
     const hoursWrap = document.getElementById('hoursWrap');
-    const rateWrap = document.getElementById('rateWrap');
+    const hourlyRateWrap = document.getElementById('hourlyRateWrap');
+    const daysWrap = document.getElementById('daysWrap');
+    const dailyRateWrap = document.getElementById('dailyRateWrap');
     const amountHint = document.getElementById('amountHint');
     const workerSelect = document.getElementById('workerSelect');
 
     function calcAmount() {
-        if (!isHourly.checked) { return; }
-        const h = parseFloat(hoursInput.value) || 0;
-        const r = parseFloat(rateInput.value) || 0;
-        amountInput.value = (Math.round(h * r * 100) / 100);
+        const mode = paymentMode.value;
+        if (mode === 'hourly') {
+            const h = parseFloat(hoursInput.value) || 0;
+            const r = parseFloat(hourlyRateInput.value) || 0;
+            amountInput.value = (Math.round(h * r * 100) / 100);
+        } else if (mode === 'daily') {
+            const d = parseFloat(daysInput.value) || 0;
+            const r = parseFloat(dailyRateInput.value) || 0;
+            amountInput.value = (Math.round(d * r * 100) / 100);
+        }
     }
 
-    function toggleHourly() {
-        const on = isHourly.checked;
-        hoursWrap.style.display = on ? '' : 'none';
-        rateWrap.style.display = on ? '' : 'none';
-        amountInput.readOnly = on;
-        amountHint.style.display = on ? '' : 'none';
-        if (on) { calcAmount(); }
+    function toggleMode() {
+        const mode = paymentMode.value;
+        const isHourly = mode === 'hourly';
+        const isDaily = mode === 'daily';
+        const auto = isHourly || isDaily;
+        hoursWrap.style.display = isHourly ? '' : 'none';
+        hourlyRateWrap.style.display = isHourly ? '' : 'none';
+        daysWrap.style.display = isDaily ? '' : 'none';
+        dailyRateWrap.style.display = isDaily ? '' : 'none';
+        amountInput.readOnly = auto;
+        amountHint.style.display = auto ? '' : 'none';
+        if (auto) { calcAmount(); }
     }
 
     workerSelect.addEventListener('change', function () {
@@ -123,13 +151,13 @@
         const rate = opt.getAttribute('data-rate');
         const cur = opt.getAttribute('data-currency');
         const role = opt.getAttribute('data-role');
-        if (rate && !rateInput.value) { rateInput.value = rate; }
+        if (rate && paymentMode.value === 'hourly' && !hourlyRateInput.value) { hourlyRateInput.value = rate; }
         if (cur) { document.getElementById('currencySelect').value = cur; }
         if (role && !document.getElementById('roleInput').value) { document.getElementById('roleInput').value = role; }
         calcAmount();
     });
 
-    isHourly.addEventListener('change', toggleHourly);
-    toggleHourly();
+    paymentMode.addEventListener('change', toggleMode);
+    toggleMode();
 </script>
 @endpush

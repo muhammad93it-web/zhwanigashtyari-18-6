@@ -392,7 +392,12 @@
                     <td class="px-4 py-3 font-medium text-slate-800">{{ $row->worker?->name ?? $row->worker_name ?? '—' }}</td>
                     <td class="px-4 py-3 text-slate-500">{{ $row->role ?? '—' }}</td>
                     <td class="px-4 py-3 text-slate-500">{{ $row->project?->name ?? '—' }}</td>
-                    <td class="px-4 py-3 text-slate-600">{{ $row->is_hourly ? number_format($row->hours, 1) . ' کتژ' : '—' }}</td>
+                    @php $lmode = $row->payment_mode ?? ($row->is_hourly ? 'hourly' : 'fixed'); @endphp
+                    <td class="px-4 py-3 text-slate-600">
+                        @if($lmode === 'hourly'){{ number_format((float)$row->hours, 1) }} کتژ
+                        @elseif($lmode === 'daily'){{ number_format((float)$row->days, 1) }} ڕۆژ
+                        @else —@endif
+                    </td>
                     <td class="px-4 py-3 font-semibold text-lime-700">{{ number_format($row->amount, 0) }}</td>
                     <td class="px-4 py-3"><span class="badge-slate">{{ $row->currency }}</span></td>
 

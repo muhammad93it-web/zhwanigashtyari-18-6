@@ -22,6 +22,7 @@ class User extends Authenticatable
         'labor'          => 'کرێی کار و کرێکاران',
         'reports'        => 'ڕاپۆرتەکان',
         'documents'      => 'نووسراوەکان',
+        'letters'        => 'نووسراوی فەرمی (لێتەرهێد)',
         'print_center'   => 'چاپکردنی بەشەکان',
         'clients'        => 'کڕیاران و کەسەکان',
         'transactions'   => 'مامەڵە گشتییەکان',

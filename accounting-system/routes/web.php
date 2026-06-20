@@ -13,6 +13,7 @@ use App\Http\Controllers\ExchangeRateController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\LaborPaymentController;
+use App\Http\Controllers\LetterController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\MaterialMovementController;
 use App\Http\Controllers\PrintCenterController;
@@ -127,6 +128,10 @@ Route::middleware('auth')->group(function () {
     Route::middleware('perm:documents')->group(function () {
         Route::resource('documents', DocumentController::class);
         Route::get('/documents/{document}/print', [DocumentController::class, 'print'])->name('documents.print');
+    });
+    Route::middleware('perm:letters')->group(function () {
+        Route::resource('letters', LetterController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+        Route::get('/letters/{letter}/print', [LetterController::class, 'print'])->name('letters.print');
     });
     Route::middleware('perm:print_center')->group(function () {
         Route::get('/print-center', [PrintCenterController::class, 'index'])->name('print-center.index');

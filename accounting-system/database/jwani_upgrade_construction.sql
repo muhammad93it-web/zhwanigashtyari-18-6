@@ -435,6 +435,57 @@ CREATE TABLE IF NOT EXISTS `telegram_delivery_logs` (
   CONSTRAINT `telegram_delivery_logs_telegram_schedule_id_foreign` FOREIGN KEY (`telegram_schedule_id`) REFERENCES `telegram_schedules` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- =====================================================================
+--  UPGRADE 3 — ژمارەی وەسڵی هاتوو + شێوازی کرێی کار (ڕۆژانە/کاتژمێری/جێگیر)
+--  هەموو ئەمانە idempotent-ن (سەلامەتە چەند جارێک کاری پێبکرێت).
+-- =====================================================================
+
+-- purchase_invoices: incoming_invoice_number (ژمارەی وەسڵی هاتوو) + index
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='purchase_invoices' AND COLUMN_NAME='incoming_invoice_number');
+SET @s := IF(@c=0,'ALTER TABLE `purchase_invoices` ADD COLUMN `incoming_invoice_number` VARCHAR(255) NULL AFTER `id`','SELECT 1');
+PREPARE p FROM @s; EXECUTE p; DEALLOCATE PREPARE p;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.STATISTICS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='purchase_invoices' AND INDEX_NAME='purchase_invoices_incoming_invoice_number_index');
+SET @s := IF(@c=0,'ALTER TABLE `purchase_invoices` ADD KEY `purchase_invoices_incoming_invoice_number_index` (`incoming_invoice_number`)','SELECT 1');
+PREPARE p FROM @s; EXECUTE p; DEALLOCATE PREPARE p;
+
+-- labor_payments: payment_mode (جێگیر/کاتژمێری/ڕۆژانە)
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='labor_payments' AND COLUMN_NAME='payment_mode');
+SET @s := IF(@c=0,'ALTER TABLE `labor_payments` ADD COLUMN `payment_mode` VARCHAR(20) NOT NULL DEFAULT ''hourly'' AFTER `is_hourly`','SELECT 1');
+PREPARE p FROM @s; EXECUTE p; DEALLOCATE PREPARE p;
+
+-- labor_payments: days (ژمارەی ڕۆژ)
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='labor_payments' AND COLUMN_NAME='days');
+SET @s := IF(@c=0,'ALTER TABLE `labor_payments` ADD COLUMN `days` DECIMAL(10,2) NULL AFTER `hours`','SELECT 1');
+PREPARE p FROM @s; EXECUTE p; DEALLOCATE PREPARE p;
+
+-- labor_payments: daily_rate (کرێی ڕۆژانە)
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='labor_payments' AND COLUMN_NAME='daily_rate');
+SET @s := IF(@c=0,'ALTER TABLE `labor_payments` ADD COLUMN `daily_rate` DECIMAL(15,2) NULL AFTER `hourly_rate`','SELECT 1');
+PREPARE p FROM @s; EXECUTE p; DEALLOCATE PREPARE p;
+
+-- labor_payments: backfill payment_mode لە is_hourly بۆ تۆمارە کۆنەکان
+UPDATE `labor_payments` SET `payment_mode` = IF(`is_hourly` = 1, 'hourly', 'fixed')
+WHERE `payment_mode` IS NULL OR `payment_mode` = '';
+
+-- letters: خشتەی نووسراوی فەرمی (لێتەرهێد A4) — idempotent
+CREATE TABLE IF NOT EXISTS `letters` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint unsigned DEFAULT NULL,
+  `reference_number` varchar(255) NOT NULL,
+  `letter_date` date NOT NULL,
+  `recipient` varchar(255) DEFAULT NULL,
+  `subject` varchar(255) DEFAULT NULL,
+  `body` text,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `letters_reference_number_index` (`reference_number`),
+  KEY `letters_letter_date_index` (`letter_date`),
+  KEY `letters_user_id_foreign` (`user_id`),
+  CONSTRAINT `letters_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- ---------------------------------------------------------------------
 -- Mark the new migrations as applied (INSERT IGNORE = safe to re-run)
 -- so a later `php artisan migrate` does not try to re-create them.
@@ -459,6 +510,8 @@ FROM (
   UNION ALL SELECT '2026_06_19_000001_create_app_settings_table'
   UNION ALL SELECT '2026_06_19_000002_create_telegram_schedules_table'
   UNION ALL SELECT '2026_06_19_000003_create_telegram_delivery_logs_table'
+  UNION ALL SELECT '2026_06_20_000001_add_letterhead_receipt_and_wage_fields'
+  UNION ALL SELECT '2026_06_20_000002_create_letters_table'
 ) AS v
 WHERE NOT EXISTS (
   SELECT 1 FROM (SELECT * FROM `migrations`) AS m2 WHERE m2.`migration` = v.migration

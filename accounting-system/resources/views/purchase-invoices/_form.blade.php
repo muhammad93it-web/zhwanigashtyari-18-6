@@ -33,6 +33,10 @@
     {{-- Header: party + date + project --}}
     <div class="card p-5 mb-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div>
+            <label class="label">ژمارەی وەسڵی هاتوو</label>
+            <input type="text" name="incoming_invoice_number" value="{{ old('incoming_invoice_number', $invoice->incoming_invoice_number ?? '') }}" class="input-field" placeholder="ژمارەی وەسڵی هاتوو (دەستی)">
+        </div>
+        <div>
             <label class="label">دابینکەر (هەژماردار)</label>
             <select name="supplier_id" class="input-field">
                 <option value="">— بێ هەژمار / گەیەنەری کاتی —</option>

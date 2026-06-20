@@ -22,6 +22,7 @@
 </div>
 
 <div class="card p-5 mb-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 text-sm">
+    @if($inv->incoming_invoice_number)<div><div class="text-slate-400 text-xs">ژمارەی وەسڵی هاتوو</div><div class="font-semibold text-slate-800">{{ $inv->incoming_invoice_number }}</div></div>@endif
     <div><div class="text-slate-400 text-xs">دابینکەر / گەیەنەر</div><div class="font-semibold text-slate-800">{{ $inv->party_name }}</div></div>
     <div><div class="text-slate-400 text-xs">پڕۆژە</div><div class="font-semibold text-slate-800">{{ $inv->project->name ?? '—' }}</div></div>
     <div><div class="text-slate-400 text-xs">بەروار</div><div class="font-semibold text-slate-800">{{ optional($inv->date)->format('Y-m-d') }}</div></div>

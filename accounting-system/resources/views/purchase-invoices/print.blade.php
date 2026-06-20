@@ -59,6 +59,7 @@
         </div>
         <div class="doc-meta">
             <div>وەسڵی کڕین: <b>#{{ $invoice->id }}</b></div>
+            @if($invoice->incoming_invoice_number)<div>ژمارەی وەسڵی هاتوو: <b>{{ $invoice->incoming_invoice_number }}</b></div>@endif
             <div>بەروار: <b>{{ optional($invoice->date)->format('Y-m-d') }}</b></div>
             @if($invoice->project)<div>پڕۆژە: <b>{{ $invoice->project->name }}</b></div>@endif
         </div>
